@@ -7,11 +7,11 @@ namespace Frends.FixedWidthFlatFile.Parse;
 public static class FixedWidthFlatFile
 {
     /// <summary>
-    /// Parse Fixed Width data to object
+    /// Parse Fixed Width data to object. [Documentation](https://tasks.frends.com/#frends-tasks/Frends.FixedWidthFlatFile.Parse)
     /// </summary>
     /// <param name="input"></param>
     /// <param name="options"></param>
-    /// <returns>Object { List&lt;Dictionary&lt;string Key, dynamic Value&gt;&gt; Data, JToken ToJson(), string ToXml()</returns>
+    /// <returns>Object { List&lt;Dictionary&lt;string Key, dynamic Value&gt;&gt; Data }</returns>
     public static Result Parse([PropertyTab] Input input, [PropertyTab] Options options)
     {
         var inputRows = new List<string>();
