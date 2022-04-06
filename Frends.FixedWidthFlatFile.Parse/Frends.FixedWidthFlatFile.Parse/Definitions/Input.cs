@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Frends.FixedWidthFlatFile.Parse.Definitions;
 
+/// <summary>
+/// Parse task input specification.
+/// </summary>
 public class Input
 {
     /// <summary>

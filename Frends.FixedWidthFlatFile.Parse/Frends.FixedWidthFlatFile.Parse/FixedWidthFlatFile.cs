@@ -4,6 +4,9 @@ using Frends.FixedWidthFlatFile.Parse.Definitions;
 
 namespace Frends.FixedWidthFlatFile.Parse;
 
+/// <summary>
+/// Container class for Frends.FixedWidthFlatFile.Parse task.
+/// </summary>
 public static class FixedWidthFlatFile
 {
     /// <summary>
@@ -14,9 +17,9 @@ public static class FixedWidthFlatFile
     /// <returns>Object { List&lt;Dictionary&lt;string Key, dynamic Value&gt;&gt; Data }</returns>
     public static Result Parse([PropertyTab] Input input, [PropertyTab] Options options)
     {
-        var inputRows = new List<string>();
+        List<string> inputRows;
         var headers = new List<string>();
-        var outputData = new List<Dictionary<string, dynamic>>();
+        var outputData = new List<Dictionary<string, dynamic?>>();
 
         //== Read input data ==/
         using (var reader = new StringReader(input.FlatFileContent))
@@ -83,7 +86,7 @@ public static class FixedWidthFlatFile
     internal static List<string> ReadLinesToList(StringReader reader)
     {
         var allLines = new List<string>();
-        string line;
+        string? line;
         while (null != (line = reader.ReadLine()))
         {
             //skip empty lines
@@ -108,6 +111,8 @@ public static class FixedWidthFlatFile
             var values = new List<string>();
 
             int startIndex = 0;
+            // Disabled warning because it is incorrect
+#pragma warning disable S3267 // Loops should be simplified with "LINQ" expressions
             foreach (var columnSpec in columnSpecifications)
             {
                 var value = row.Substring(startIndex, columnSpec.Length);
@@ -115,6 +120,7 @@ public static class FixedWidthFlatFile
                 // move substring start index
                 startIndex += columnSpec.Length;
             }
+#pragma warning restore S3267 // Loops should be simplified with "LINQ" expressions
 
             return values;
         }
@@ -125,9 +131,9 @@ public static class FixedWidthFlatFile
         }
     }
 
-    internal static Dictionary<string, dynamic> ParseDataRow(string row, ColumnSpecification[] columnSpecifications)
+    internal static Dictionary<string, dynamic?> ParseDataRow(string row, ColumnSpecification[] columnSpecifications)
     {
-        var parsedData = new Dictionary<string, dynamic>();
+        var parsedData = new Dictionary<string, dynamic?>();
 
         var rowValues = SplitToList(row, columnSpecifications);
 
@@ -185,7 +191,7 @@ public static class FixedWidthFlatFile
     /// <param name="dictionary"></param>
     /// <param name="key"></param>
     /// <param name="value"></param>
-    internal static void AddKeyValuePair(this Dictionary<string, dynamic> dictionary, string key, dynamic value)
+    internal static void AddKeyValuePair(this Dictionary<string, dynamic?> dictionary, string key, dynamic? value)
     {
         var originalKey = key;
         int renameIndex = 1;
