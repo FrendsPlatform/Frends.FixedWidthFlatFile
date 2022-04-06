@@ -15,26 +15,12 @@ namespace Frends.FixedWidthFlatFile.ConvertToJSON.Definitions
         /// Fixed width flat file content
         /// </summary>
         [DisplayFormat(DataFormatString = "Expression")]
-        public string FlatFileContent { get; set; }
-
+        public List<Dictionary<string, dynamic?>> FileContent { get; set; } = new List<Dictionary<string, dynamic?>>();
+        
         /// <summary>
-        /// None: Flat file does not contain header row
-        /// FixedWidth: Header row is parsed using column specification
-        /// Delimited: Header row is parsed using delimiter char
+        /// Culture format json will be build with
         /// </summary>
-        [DefaultValue(HeaderRowType.FixedWidth)]
-        public HeaderRowType HeaderRow { get; set; }
-
-        /// <summary>
-        /// If header row uses delimiter set it here
-        /// </summary>
-        [UIHint(nameof(HeaderRow), "", HeaderRowType.Delimited)]
-        [DisplayFormat(DataFormatString = "Text")]
-        public string HeaderDelimiter { get; set; }
-
-        /// <summary>
-        /// Column specification. Array of class ColumnSpecification.
-        /// </summary>
-        public ColumnSpecification[] ColumnSpecifications { get; set; }
+        [DisplayFormat(DataFormatString = "text")]
+        public string culture = null;
     }
 }

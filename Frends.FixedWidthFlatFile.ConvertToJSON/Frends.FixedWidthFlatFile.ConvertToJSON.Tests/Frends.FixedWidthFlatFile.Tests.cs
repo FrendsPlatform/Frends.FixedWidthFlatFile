@@ -1,63 +1,80 @@
-using Frends.FixedWidthFlatFile.ConvertToJSON.Definitions;
 using NUnit.Framework;
 using System;
-using System.Linq;
-using static Frends.FixedWidthFlatFile.ConvertToJSON.Definitions.Enums;
+using System.Collections.Generic;
+using System.Text.Json;
 
 namespace Frends.FixedWidthFlatFile.ConvertToJSON.Tests
 {
 
     [TestFixture]
     public class Tests
-    {/*
-        #region Test data creation helper methods
+    {
+        private List<Dictionary<string, dynamic?>> _testCases;
+        private List<Json> _testJsons;
 
-        private Result _withEmptyAndDateValues;
-        
-        /// <summary>
-        /// Creation of values to use.
-        /// </summary>
-        [SetUp]
-        public void SetUp()
+        #region Test helper classes
+        private class Json
         {
-            string fileContent =
-                @"First;Second;Third;Date
-firstValue    ThirdValue190315";
-
-
-            var parseInput = new Input
-            {
-                ColumnSpecifications = columnSpec,
-                FlatFileContent = fileContent,
-                HeaderDelimiter = ";",
-                HeaderRow = HeaderRowType.Delimited
-            };
-            var options = new Options { SkipRows = false };
-
-            _withEmptyAndDateValues = FixedWidthFlatFile.Parse(parseInput, options);
-            Console.WriteLine(_withEmptyAndDateValues.Data);
+            public string Name { get; set; }
+            public string? Content { get; set; }
+            public DateTime Timestamp { get; set; }
         }
-
         #endregion
 
-        /// <summary>
-        /// Tests that given json with empty values do not throw exceptions.
-        /// </summary>
-        [Test]
-        public void ToJson_WithEmptyValues_DoesNotThrowException()
-        {
-            Assert.AreEqual(null, _withEmptyAndDateValues.Data[0]["Second"]);
+        [SetUp]
+        public void SetUp() { 
+            _testCases = new List<Dictionary<string, dynamic?>>();
+            _testJsons = new List<Json>();
+            Dictionary<string, dynamic?> testCase = new Dictionary<string, dynamic?>();
+            var timestamp = DateTime.Now;
+
+            testCase.Add("Name", "Test");
+            testCase.Add("Content", "This is a test data");
+            testCase.Add("Timestamp", timestamp);
+            _testCases.Add(testCase);
+
+            Json testJson = new Json
+            {
+                Name = "Test",
+                Content = "This is a test data",
+                Timestamp = timestamp,
+            };
+            _testJsons.Add(testJson);
         }
 
         /// <summary>
-        /// Tests that method converts date type right.
+        /// Test ParseJSON() -method from FixedWidthFlatFile -class.
         /// </summary>
         [Test]
-        public void ToJson_NullCheckWithDateTimeValue_DoesNotThrowException()
-        {
-            Assert.IsTrue(_withEmptyAndDateValues.Data[0]["Date"].GetType() == typeof(DateTime));
-        }*/
+        public void testParseJSON() {
+            var result = FixedWidthFlatFile.ParseJSON(new Definitions.Input { FileContent = _testCases, culture = null });
+            Assert.IsTrue(!string.IsNullOrEmpty(result.Data));
+            Assert.AreEqual(JsonSerializer.Serialize(_testJsons), result.Data);
+        }
 
+        /// <summary>
+        /// Test ParseJSON() -method from FixedWidthFlatFile -class. Deserializables the object and compares values are right.
+        /// </summary>
+        [Test]
+        public void testParseJSON_deserialize() {
+            var result = FixedWidthFlatFile.ParseJSON(new Definitions.Input { FileContent = _testCases, culture = null });
+            var deserialized = JsonSerializer.Deserialize<List<Json>>(result.Data);
+            Assert.IsTrue(deserialized != null);
+            Assert.AreEqual(_testJsons[0].Name, deserialized[0].Name);
+            Assert.AreEqual(_testJsons[0].Content, deserialized[0].Content);
+            Assert.AreEqual(_testJsons[0].Timestamp, deserialized[0].Timestamp);
+        }
+
+        /// <summary>
+        /// Test ParseJSON() -method from FixedWidthFlatFile -class. Throws will be thrown if fileContnet -parameter is empty.
+        /// </summary>
+        [Test]
+        public void testParseJSON_throws_emptyParameter() {
+            Assert.Throws<ArgumentNullException>(() =>
+            {
+                var result = FixedWidthFlatFile.ParseJSON(new Definitions.Input { FileContent = null, culture = null });
+            });
+        }
     }
 }
  
