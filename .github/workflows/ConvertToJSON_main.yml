@@ -1,0 +1,19 @@
+name: Frends.FixedWidthFlatFile.ConvertJSON Main
+
+on:
+  push:
+    branches:    
+      - main
+    paths:
+      - 'Frends.FixedWidthFlatFile.ConvertJSON/**'
+  workflow_dispatch:
+  
+
+jobs:
+  build:
+    uses: FrendsPlatform/FrendsTasks/.github/workflows/build_main.yml@main
+    with:
+      workdir: Frends.FixedWidthFlatFile.ConvertJSON
+    secrets:
+      badge_service_api_key: ${{ secrets.BADGE_SERVICE_API_KEY }}
+      
