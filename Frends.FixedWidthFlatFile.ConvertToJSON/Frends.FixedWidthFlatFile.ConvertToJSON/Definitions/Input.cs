@@ -15,6 +15,6 @@ namespace Frends.FixedWidthFlatFile.ConvertToJSON.Definitions
         /// Culture format json will be build with
         /// </summary>
         [DisplayFormat(DataFormatString = "text")]
-        public string culture = null;
+        public string culture { get; set; } = null;
     }
 }
