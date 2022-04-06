@@ -11,6 +11,12 @@ namespace Frends.FixedWidthFlatFile.ConvertToJSON
 {
     public static class FixedWidthFlatFile
     {
+        /// <summary>
+        /// This is a task that converts given value to json string.
+        /// Documentation: https://github.com/CommunityHiQ/Frends.FixedWidthFlatFile.ConvertToJSON
+        /// </summary>
+        /// <param name="input">What value to convert.</param>
+        /// <returns>{string Data} </returns>
         public static Result ParseJSON(Input data)
         {
             if(data.FileContent == null || data.FileContent.Count <= 0) throw new ArgumentNullException("FileContent not given. Cannot be empty.");
