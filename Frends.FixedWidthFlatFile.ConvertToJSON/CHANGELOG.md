@@ -1,9 +1,5 @@
 # Changelog
 
-## [1.0.1] - 2022-02-21
-### Changed
-- Targeting changed to only include .NET 6.0 (removed .NET Standard 2.0)
-
-## [1.0.0] - 2022-02-09
+## [1.0.5] - 2022-04-06
 ### Added
 - Initial implementation
