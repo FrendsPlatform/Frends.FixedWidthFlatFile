@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>Frends.FixedWidthFlatFile.Parse</AssemblyName>
+    <RootNamespace>Frends.FixedWidthFlatFile.Parse</RootNamespace>
+
+    <Version>1.0.0</Version>
+    <Authors>Jefim Borissov</Authors>
+    <Copyright>Frends</Copyright>
+    <Company>Frends</Company>
+    <Product>Frends</Product>
+    <PackageTags>Frends</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Description>Task for parsing fixed flat files.</Description>
+    <PackageProjectUrl>https://frends.com/</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/FrendsPlatform/Frends.FixedWidthFlatFile/tree/main/Frends.FixedWidthFlatFile.Parse</RepositoryUrl>
+  </PropertyGroup>
+
+</Project>
