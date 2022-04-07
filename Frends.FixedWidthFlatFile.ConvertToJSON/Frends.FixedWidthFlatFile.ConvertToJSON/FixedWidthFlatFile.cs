@@ -63,7 +63,8 @@ namespace Frends.FixedWidthFlatFile.ConvertToJSON
 
                     return writer.Token;
                 }
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
