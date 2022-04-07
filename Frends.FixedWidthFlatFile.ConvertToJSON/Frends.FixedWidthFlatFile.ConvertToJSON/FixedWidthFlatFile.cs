@@ -3,7 +3,9 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
+using System.Threading;
 
 #pragma warning disable 1591
 
@@ -13,11 +15,11 @@ namespace Frends.FixedWidthFlatFile.ConvertToJSON
     {
         /// <summary>
         /// This is a task that converts given value to json string.
-        /// Documentation: https://github.com/CommunityHiQ/Frends.FixedWidthFlatFile.ConvertToJSON
+        /// [Documentation](https://tasks.frends.com/tasks#frends-tasks/Frends.FixedWidthFlatFile.ConvertToJSON)
         /// </summary>
-        /// <param name="input">What value to convert.</param>
-        /// <returns>{string Data} </returns>
-        public static Result ParseJSON(Input data)
+        /// <param name="data">What value to convert.</param>
+        /// <returns>object { string Data }</returns>
+        public static Result ConvertToJSON([PropertyTab] Input data, CancellationToken calcellationToken)
         {
             if(data.FileContent == null || data.FileContent.Count <= 0) throw new ArgumentNullException("FileContent not given. Cannot be empty.");
 
