@@ -18,8 +18,9 @@ namespace Frends.FixedWidthFlatFile.ConvertToXML
         /// [Documentation](https://tasks.frends.com/tasks#frends-tasks/Frends.FixedWidthFlatFile.ConvertToXML)
         /// </summary>
         /// <param name="data">What value to convert.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>object { string Data }</returns>
-        public static Result ConvertToJSON([PropertyTab] Input data, CancellationToken cancellationToken)
+        public static Result ConvertToXML([PropertyTab] Input data, CancellationToken cancellationToken)
         {
             if(data.FileContent == null || data.FileContent.Count <= 0) throw new ArgumentNullException("FileContent not given. Cannot be empty.");
 
