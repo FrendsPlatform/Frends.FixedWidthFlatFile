@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -24,7 +23,6 @@ namespace Frends.FixedWidthFlatFile.ConvertToXML
         {
             if(data.FileContent == null || data.FileContent.Count <= 0) throw new ArgumentNullException("FileContent not given. Cannot be empty.");
 
-            CultureInfo culture = string.IsNullOrWhiteSpace(data.culture) ? CultureInfo.InvariantCulture : new CultureInfo(data.culture);
             string xml = WriteToXmlString(data.FileContent, cancellationToken);
             return xml != null ? new Result (xml) : throw new Exception("XML parse failed.");
         }

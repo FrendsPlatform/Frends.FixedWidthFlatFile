@@ -1,7 +1,6 @@
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Text.Json;
 
 namespace Frends.FixedWidthFlatFile.ConvertToXML.Tests
 {
