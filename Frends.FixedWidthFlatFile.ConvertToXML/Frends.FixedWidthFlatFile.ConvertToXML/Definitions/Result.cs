@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Frends.FixedWidthFlatFile.ConvertToXML.Definitions
+﻿namespace Frends.FixedWidthFlatFile.ConvertToXML.Definitions
 {
     public class Result
     {

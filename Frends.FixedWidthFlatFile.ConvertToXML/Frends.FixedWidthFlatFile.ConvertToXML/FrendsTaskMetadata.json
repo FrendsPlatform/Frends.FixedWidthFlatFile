@@ -1,5 +1,5 @@
 ﻿{
   "Tasks": [
-    { "TaskMethod": "Frends.FixedWidthFlatFile.ConvertToJSON.FixedWidthFlatFile.ConvertToJSON" }
+    { "TaskMethod": "Frends.FixedWidthFlatFile.ConvertToXML.FixedWidthFlatFile.ConvertToXML" }
   ]
 }
