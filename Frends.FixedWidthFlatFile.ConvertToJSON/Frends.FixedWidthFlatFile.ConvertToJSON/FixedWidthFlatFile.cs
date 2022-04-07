@@ -23,7 +23,7 @@ namespace Frends.FixedWidthFlatFile.ConvertToJSON
 
             CultureInfo culture = string.IsNullOrWhiteSpace(data.culture) ? CultureInfo.InvariantCulture : new CultureInfo(data.culture);
             Lazy<JToken> jToken = new Lazy<JToken>(() => WriteToJToken(data.FileContent, culture));
-            return jToken.Value != null ? new Result { Data = JsonConvert.SerializeObject(jToken.Value) } : throw new Exception("JSON parse failed.");
+            return jToken.Value != null ? new Result (JsonConvert.SerializeObject(jToken.Value)) : throw new Exception("JSON parse failed.");
         }
 
         private static JToken WriteToJToken(List<Dictionary<string, dynamic>> data, CultureInfo culture)

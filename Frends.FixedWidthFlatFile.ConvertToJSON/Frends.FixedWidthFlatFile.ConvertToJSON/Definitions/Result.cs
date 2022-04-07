@@ -8,6 +8,10 @@ namespace Frends.FixedWidthFlatFile.ConvertToJSON.Definitions
         /// Column name. If input data contains Header row and value is left empty, header value is used as name.
         /// </summary>
         [DisplayFormat(DataFormatString = "Text")]
-        public string Data { get; set; }
+        public string Data { get; private set; }
+
+        public Result(string data) { 
+            this.Data = data;
+        }
     }
 }
