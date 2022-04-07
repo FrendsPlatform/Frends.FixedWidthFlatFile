@@ -8,13 +8,12 @@ namespace Frends.FixedWidthFlatFile.ConvertToJSON.Definitions
         /// <summary>
         /// Fixed width flat file content
         /// </summary>
-        [DisplayFormat(DataFormatString = "Expression")]
         public List<Dictionary<string, dynamic?>> FileContent { get; set; } = new List<Dictionary<string, dynamic?>>();
         
         /// <summary>
         /// Culture format json will be build with
         /// </summary>
         [DisplayFormat(DataFormatString = "Text")]
-        public string culture { get; set; } = null;
+        public string culture { get; set; } = string.Empty;
     }
 }
