@@ -19,16 +19,16 @@ namespace Frends.FixedWidthFlatFile.ConvertToJSON
         /// </summary>
         /// <param name="data">What value to convert.</param>
         /// <returns>object { string Data }</returns>
-        public static Result ConvertToJSON([PropertyTab] Input data, CancellationToken calcellationToken)
+        public static Result ConvertToJSON([PropertyTab] Input data, CancellationToken cancellationToken)
         {
             if(data.FileContent == null || data.FileContent.Count <= 0) throw new ArgumentNullException("FileContent not given. Cannot be empty.");
 
             CultureInfo culture = string.IsNullOrWhiteSpace(data.culture) ? CultureInfo.InvariantCulture : new CultureInfo(data.culture);
-            Lazy<JToken> jToken = new Lazy<JToken>(() => WriteToJToken(data.FileContent, culture));
-            return jToken.Value != null ? new Result (JsonConvert.SerializeObject(jToken.Value)) : throw new Exception("JSON parse failed.");
+            JToken jToken = WriteToJToken(data.FileContent, culture, cancellationToken);
+            return jToken != null ? new Result (JsonConvert.SerializeObject(jToken)) : throw new Exception("JSON parse failed.");
         }
 
-        private static JToken WriteToJToken(List<Dictionary<string, dynamic>> data, CultureInfo culture)
+        private static JToken WriteToJToken(List<Dictionary<string, dynamic>> data, CultureInfo culture, CancellationToken cancellationToken)
         {
             try
             {
@@ -41,9 +41,13 @@ namespace Frends.FixedWidthFlatFile.ConvertToJSON
 
                     foreach (var row in data)
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
+
                         writer.WriteStartObject(); // start row object
                         foreach (var key in row.Keys)
                         {
+                            cancellationToken.ThrowIfCancellationRequested();
+
                             writer.WritePropertyName(key);
                             // null check
                             if (row[key] != null)

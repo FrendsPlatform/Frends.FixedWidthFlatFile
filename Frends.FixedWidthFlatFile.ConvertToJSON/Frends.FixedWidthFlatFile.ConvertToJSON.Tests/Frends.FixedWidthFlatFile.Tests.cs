@@ -47,7 +47,7 @@ namespace Frends.FixedWidthFlatFile.ConvertToJSON.Tests
         /// </summary>
         [Test]
         public void testParseJSON() {
-            var result = FixedWidthFlatFile.ParseJSON(new Definitions.Input { FileContent = _testCases, culture = null });
+            var result = FixedWidthFlatFile.ConvertToJSON(new Definitions.Input { FileContent = _testCases, culture = null }, new System.Threading.CancellationToken());
             Assert.IsTrue(!string.IsNullOrEmpty(result.Data));
             Assert.AreEqual(JsonSerializer.Serialize(_testJsons), result.Data);
         }
@@ -57,7 +57,7 @@ namespace Frends.FixedWidthFlatFile.ConvertToJSON.Tests
         /// </summary>
         [Test]
         public void testParseJSON_deserialize() {
-            var result = FixedWidthFlatFile.ParseJSON(new Definitions.Input { FileContent = _testCases, culture = null });
+            var result = FixedWidthFlatFile.ConvertToJSON(new Definitions.Input { FileContent = _testCases, culture = null }, new System.Threading.CancellationToken());
             var deserialized = JsonSerializer.Deserialize<List<Json>>(result.Data);
             Assert.IsTrue(deserialized != null);
             Assert.AreEqual(_testJsons[0].Name, deserialized[0].Name);
@@ -72,7 +72,7 @@ namespace Frends.FixedWidthFlatFile.ConvertToJSON.Tests
         public void testParseJSON_throws_emptyParameter() {
             Assert.Throws<ArgumentNullException>(() =>
             {
-                var result = FixedWidthFlatFile.ParseJSON(new Definitions.Input { FileContent = null, culture = null });
+                var result = FixedWidthFlatFile.ConvertToJSON(new Definitions.Input { FileContent = null, culture = null }, new System.Threading.CancellationToken());
             });
         }
     }

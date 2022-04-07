@@ -10,6 +10,9 @@ namespace Frends.FixedWidthFlatFile.ConvertToJSON.Definitions
         [DisplayFormat(DataFormatString = "Text")]
         public string Data { get; private set; }
 
+        /// <summary>
+        /// Constructor.
+        /// </summary>
         public Result(string data) { 
             this.Data = data;
         }
