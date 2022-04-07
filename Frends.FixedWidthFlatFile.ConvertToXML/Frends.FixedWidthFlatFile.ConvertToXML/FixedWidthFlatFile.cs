@@ -42,7 +42,6 @@ namespace Frends.FixedWidthFlatFile.ConvertToXML
 
                         foreach (var row in data)
                         {
-                            cancellationToken.ThrowIfCancellationRequested();
                             writer.WriteStartElement("Row");
 
                             foreach (var key in row.Keys)
