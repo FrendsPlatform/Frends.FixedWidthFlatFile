@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Frends.FixedWidthFlatFile.P
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8BF012CC-C626-45DA-9965-BB99ACC6BA7E}"
 	ProjectSection(SolutionItems) = preProject
+		CHANGELOG.md = CHANGELOG.md
+		README.md = README.md
 		..\.github\workflows\Parse_main.yml = ..\.github\workflows\Parse_main.yml
 		..\.github\workflows\Parse_release.yml = ..\.github\workflows\Parse_release.yml
 		..\.github\workflows\Parse_test.yml = ..\.github\workflows\Parse_test.yml

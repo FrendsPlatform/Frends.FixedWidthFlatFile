@@ -10,7 +10,8 @@ namespace Frends.FixedWidthFlatFile.Parse;
 public static class FixedWidthFlatFile
 {
     /// <summary>
-    /// Parse Fixed Width data to object. [Documentation](https://tasks.frends.com/#frends-tasks/Frends.FixedWidthFlatFile.Parse)
+    /// Parse Fixed Width data to object. 
+    /// [Documentation](https://tasks.frends.com/tasks/frends-tasks/Frends.FixedWidthFlatFile.Parse)
     /// </summary>
     /// <param name="input">Input definition.</param>
     /// <param name="options">Additional input options.</param>
@@ -111,8 +112,6 @@ public static class FixedWidthFlatFile
             var values = new List<string>();
 
             int startIndex = 0;
-            // Disabled warning because it is incorrect
-#pragma warning disable S3267 // Loops should be simplified with "LINQ" expressions
             foreach (var columnSpec in columnSpecifications)
             {
                 var value = row.Substring(startIndex, columnSpec.Length);
@@ -120,7 +119,6 @@ public static class FixedWidthFlatFile
                 // move substring start index
                 startIndex += columnSpec.Length;
             }
-#pragma warning restore S3267 // Loops should be simplified with "LINQ" expressions
 
             return values;
         }
@@ -163,11 +161,11 @@ public static class FixedWidthFlatFile
                             DateTime.ParseExact(columnValue, columnSpec.DateTimeFormat, CultureInfo.InvariantCulture));
                         break;
                     case ColumnType.Decimal:
-                        var cultureDecimal = columnValue.Contains(",") ? CultureInfo.GetCultureInfo("fi-FI") : CultureInfo.InvariantCulture;
+                        var cultureDecimal = columnValue.Contains(',') ? CultureInfo.GetCultureInfo("fi-FI") : CultureInfo.InvariantCulture;
                         parsedData.AddKeyValuePair(columnName, decimal.Parse(columnValue, cultureDecimal));
                         break;
                     case ColumnType.Double:
-                        var cultureDouble = columnValue.Contains(",") ? CultureInfo.GetCultureInfo("fi-FI") : CultureInfo.InvariantCulture;
+                        var cultureDouble = columnValue.Contains(',') ? CultureInfo.GetCultureInfo("fi-FI") : CultureInfo.InvariantCulture;
                         parsedData.AddKeyValuePair(columnName, double.Parse(columnValue, cultureDouble));
                         break;
                     case ColumnType.Int:
@@ -185,19 +183,13 @@ public static class FixedWidthFlatFile
         return parsedData;
     }
 
-    /// <summary>
-    /// Adds key and value. If key already exists, it is renamed with '_1', '_2' etc suffix.
-    /// </summary>
-    /// <param name="dictionary"></param>
-    /// <param name="key"></param>
-    /// <param name="value"></param>
     internal static void AddKeyValuePair(this Dictionary<string, dynamic?> dictionary, string key, dynamic? value)
     {
         var originalKey = key;
         int renameIndex = 1;
         while (dictionary.ContainsKey(key))
         {
-            key = $"{originalKey}_{renameIndex.ToString()}";
+            key = $"{originalKey}_{renameIndex}";
             renameIndex++;
         }
         dictionary.Add(key, value);
