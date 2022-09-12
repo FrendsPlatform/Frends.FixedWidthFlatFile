@@ -18,7 +18,8 @@ public class ColumnSpecification
     /// <summary>
     /// Column type.
     /// </summary>
-    /// <example>String</example>
+    /// <example>ColumnType.String</example>
+    [DefaultValue(ColumnType.String)]
     public ColumnType Type { get; set; }
 
     /// <summary>

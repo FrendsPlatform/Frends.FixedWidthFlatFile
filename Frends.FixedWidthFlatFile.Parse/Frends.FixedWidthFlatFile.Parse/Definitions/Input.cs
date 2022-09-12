@@ -20,7 +20,7 @@ public class Input
     /// FixedWidth: Header row is parsed using column specification
     /// Delimited: Header row is parsed using delimiter char
     /// </summary>
-    /// <example>FixedWidth</example>
+    /// <example>HeaderRowType.FixedWidth</example>
     [DefaultValue(HeaderRowType.FixedWidth)]
     public HeaderRowType HeaderRow { get; set; }
 
@@ -35,7 +35,7 @@ public class Input
     /// <summary>
     /// Column specifications for the data that is being parsed.
     /// </summary>
-    /// <example>Example, String, yyyy-MM-ddTHH:mm:ss, 5</example>
+    /// <example>[ Example, ColumnType.String, yyyy-MM-ddTHH:mm:ss, 5 ]</example>
     public ColumnSpecification[] ColumnSpecifications { get; set; } = new ColumnSpecification[0];
 }
 
