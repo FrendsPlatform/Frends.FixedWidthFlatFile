@@ -2,9 +2,7 @@ using System;
 using System.Linq;
 using Frends.FixedWidthFlatFile.Parse.Definitions;
 using NUnit.Framework;
-
 namespace Frends.FixedWidthFlatFile.Parse.Tests;
-
 
 [TestFixture]
 public class ExtensionTests
@@ -181,11 +179,11 @@ Hodor   HodorsStr 20180101 " + System.Environment.NewLine;
         var result = FixedWidthFlatFile.ParseDataRow(testData, columns);
 
         Assert.AreEqual(6, result.Count);
-        Assert.AreEqual(typeof(bool), result["Boolean"].GetType());
+        Assert.AreEqual(typeof(bool), result["Boolean"]?.GetType());
         Assert.IsTrue(result["Char"] is Char);
-        Assert.AreEqual(typeof(double), result["Double"].GetType());
-        Assert.AreEqual(typeof(long), result["Long"].GetType());
-        Assert.AreEqual(typeof(DateTime), result["DateTime"].GetType());
-        Assert.AreEqual(typeof(int), result["Int"].GetType());
+        Assert.AreEqual(typeof(double), result["Double"]?.GetType());
+        Assert.AreEqual(typeof(long), result["Long"]?.GetType());
+        Assert.AreEqual(typeof(DateTime), result["DateTime"]?.GetType());
+        Assert.AreEqual(typeof(int), result["Int"]?.GetType());
     }
 }

@@ -8,7 +8,6 @@ on:
       - 'Frends.FixedWidthFlatFile.Parse/**'
   workflow_dispatch:
   
-
 jobs:
   build:
     uses: FrendsPlatform/FrendsTasks/.github/workflows/build_main.yml@main
@@ -16,4 +15,3 @@ jobs:
       workdir: Frends.FixedWidthFlatFile.Parse
     secrets:
       badge_service_api_key: ${{ secrets.BADGE_SERVICE_API_KEY }}
-      

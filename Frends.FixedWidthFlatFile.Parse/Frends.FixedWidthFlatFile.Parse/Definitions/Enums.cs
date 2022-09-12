@@ -1,11 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Frends.FixedWidthFlatFile.Parse.Definitions;
 
-namespace Frends.FixedWidthFlatFile.Parse.Definitions;
+/// <summary>
+/// HeaderRowType values.
+/// </summary>
+public enum HeaderRowType 
+{
+#pragma warning disable CS1591 // self explanatory
+    None,
+    FixedWidth, 
+    Delimited
+#pragma warning restore CS1591 // self explanatory
+}
 
-public enum HeaderRowType { None, FixedWidth, Delimited }
-
-public enum ColumnType { String, Int, Long, Decimal, Double, Boolean, DateTime, Char }
+/// <summary>
+/// ColumnType values.
+/// </summary>
+public enum ColumnType 
+{
+#pragma warning disable CS1591 // self explanatory
+    String,
+    Int, 
+    Long, 
+    Decimal, 
+    Double, 
+    Boolean, 
+    DateTime, 
+    Char
+#pragma warning restore CS1591 // self explanatory
+}

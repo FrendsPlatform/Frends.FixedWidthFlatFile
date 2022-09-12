@@ -1,11 +1,11 @@
 # Frends.FixedWidthFlatFile.Parse
+Frends task for parsing fixed width flat files.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 [![Build](https://github.com/FrendsPlatform/Frends.FixedWidthFlatFile/actions/workflows/Parse_main.yml/badge.svg)](https://github.com/FrendsPlatform/Frends.FixedWidthFlatFile/actions)
 ![MyGet](https://img.shields.io/myget/frends-tasks/v/Frends.FixedWidthFlatFile)
 ![Coverage](https://app-github-custom-badges.azurewebsites.net/Badge?key=FrendsPlatform/Frends.FixedWidthFlatFile/Frends.FixedWidthFlatFile.Parse|main)
 
-Task for parsing fixed width flat files.
 
 ## Installing
 
