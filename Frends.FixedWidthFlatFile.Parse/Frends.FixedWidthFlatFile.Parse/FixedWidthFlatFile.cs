@@ -1,11 +1,11 @@
-﻿using System.ComponentModel;
+﻿using Frends.FixedWidthFlatFile.Parse.Definitions;
+using System.ComponentModel;
 using System.Globalization;
-using Frends.FixedWidthFlatFile.Parse.Definitions;
 
 namespace Frends.FixedWidthFlatFile.Parse;
 
 /// <summary>
-/// Container class for Frends.FixedWidthFlatFile.Parse task.
+/// Container class for Frends.FixedWidthFlatFile.Parse Task.
 /// </summary>
 public static class FixedWidthFlatFile
 {
@@ -77,9 +77,7 @@ public static class FixedWidthFlatFile
         }
         //== Process data rows ==/
         foreach (var dataRow in inputRows)
-        {
             outputData.Add(ParseDataRow(dataRow, input.ColumnSpecifications));
-        }
 
         return new Result { Data = outputData };
     }
