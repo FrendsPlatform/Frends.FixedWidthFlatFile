@@ -11,7 +11,7 @@ public class Input
     /// <summary>
     /// Fixed width flat file content.
     /// </summary>
-    /// <example>Example    Example2</example>
+    /// <example>Example</example>
     [DisplayFormat(DataFormatString = "Expression")]
     public string FlatFileContent { get; set; } = string.Empty;
 
@@ -38,4 +38,3 @@ public class Input
     /// <example>[ Example, ColumnType.String, yyyy-MM-ddTHH:mm:ss, 5 ]</example>
     public ColumnSpecification[] ColumnSpecifications { get; set; } = new ColumnSpecification[0];
 }
-

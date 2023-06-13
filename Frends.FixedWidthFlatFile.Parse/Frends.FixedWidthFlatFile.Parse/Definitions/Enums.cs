@@ -3,11 +3,11 @@
 /// <summary>
 /// HeaderRowType values.
 /// </summary>
-public enum HeaderRowType 
+public enum HeaderRowType
 {
 #pragma warning disable CS1591 // self explanatory
     None,
-    FixedWidth, 
+    FixedWidth,
     Delimited
 #pragma warning restore CS1591 // self explanatory
 }
@@ -15,16 +15,16 @@ public enum HeaderRowType
 /// <summary>
 /// ColumnType values.
 /// </summary>
-public enum ColumnType 
+public enum ColumnType
 {
 #pragma warning disable CS1591 // self explanatory
     String,
-    Int, 
-    Long, 
-    Decimal, 
-    Double, 
-    Boolean, 
-    DateTime, 
+    Int,
+    Long,
+    Decimal,
+    Double,
+    Boolean,
+    DateTime,
     Char
 #pragma warning restore CS1591 // self explanatory
 }

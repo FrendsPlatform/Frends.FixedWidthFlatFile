@@ -15,9 +15,9 @@
     <PackageTags>Frends</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Description>Task for parsing fixed flat files.</Description>
+    <Description>Frends Task for parsing fixed flat files.</Description>
     <PackageProjectUrl>https://frends.com/</PackageProjectUrl>
-	<RepositoryUrl>https://github.com/FrendsPlatform/Frends.FixedWidthFlatFile/tree/main/Frends.FixedWidthFlatFile.Parse</RepositoryUrl>
+	<RepositoryUrl>https://github.com/FrendsPlatform/Frends.FixedWidthFlatFile</RepositoryUrl>
   </PropertyGroup>
 
 </Project>

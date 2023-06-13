@@ -1,7 +1,7 @@
-using System;
-using System.Linq;
 using Frends.FixedWidthFlatFile.Parse.Definitions;
 using NUnit.Framework;
+using System;
+using System.Linq;
 namespace Frends.FixedWidthFlatFile.Parse.Tests;
 
 [TestFixture]

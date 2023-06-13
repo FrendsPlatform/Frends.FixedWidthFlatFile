@@ -1,6 +1,6 @@
-﻿using System.ComponentModel;
+﻿using Frends.FixedWidthFlatFile.Parse.Definitions;
+using System.ComponentModel;
 using System.Globalization;
-using Frends.FixedWidthFlatFile.Parse.Definitions;
 
 namespace Frends.FixedWidthFlatFile.Parse;
 
