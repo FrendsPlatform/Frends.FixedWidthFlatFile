@@ -1,7 +1,7 @@
 ﻿namespace Frends.FixedWidthFlatFile.Parse.Definitions;
 
 /// <summary>
-/// Result of fixed width flat file parse task.
+/// Result of fixed width flat file parse Task.
 /// </summary>
 public class Result
 {

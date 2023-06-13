@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace Frends.FixedWidthFlatFile.Parse.Definitions;
 
 /// <summary>
-/// Parse task input specification.
+/// Parse Task input specification.
 /// </summary>
 public class Input
 {

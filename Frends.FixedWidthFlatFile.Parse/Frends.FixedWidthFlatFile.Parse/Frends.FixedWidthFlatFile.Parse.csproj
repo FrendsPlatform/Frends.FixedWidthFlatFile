@@ -17,7 +17,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Description>Frends Task for parsing fixed flat files.</Description>
     <PackageProjectUrl>https://frends.com/</PackageProjectUrl>
-	<RepositoryUrl>https://github.com/FrendsPlatform/Frends.FixedWidthFlatFile</RepositoryUrl>
+	<RepositoryUrl>https://github.com/FrendsPlatform/Frends.FixedWidthFlatFile/tree/main/Frends.FixedWidthFlatFile.Parse</RepositoryUrl>
   </PropertyGroup>
 
 </Project>
