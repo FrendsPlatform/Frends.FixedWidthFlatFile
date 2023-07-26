@@ -21,10 +21,11 @@ public static class FixedWidthFlatFile
     /// <returns>object { string Data }</returns>
     public static Result ConvertToXML([PropertyTab] Input data, CancellationToken cancellationToken)
     {
-        if(data.FileContent == null || data.FileContent.Count <= 0) throw new ArgumentNullException("FileContent not given. Cannot be empty.");
+        if (data.FileContent == null || data.FileContent.Count <= 0)
+            throw new ArgumentNullException("FileContent not given. Cannot be empty.");
 
         string xml = WriteToXmlString(data.FileContent, cancellationToken);
-        return xml != null ? new Result (xml) : throw new Exception("XML parse failed.");
+        return xml != null ? new Result(xml) : throw new Exception("XML parse failed.");
     }
 
     private static string WriteToXmlString(List<Dictionary<string, dynamic>> data, CancellationToken cancellationToken)

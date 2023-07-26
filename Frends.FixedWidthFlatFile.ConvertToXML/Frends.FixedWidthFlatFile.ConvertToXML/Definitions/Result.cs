@@ -28,7 +28,7 @@ public class Result
     public string Data { get; private set; }
 
     internal Result(string data)
-    { 
+    {
         Data = data;
     }
 }
