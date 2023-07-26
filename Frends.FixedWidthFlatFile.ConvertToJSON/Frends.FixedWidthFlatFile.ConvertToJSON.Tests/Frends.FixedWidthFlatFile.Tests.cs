@@ -25,7 +25,7 @@ public class Tests
 
     [SetUp]
     public void SetUp()
-    { 
+    {
         _testCases = new List<Dictionary<string, dynamic?>>();
         _testJsons = new List<Json>();
         Dictionary<string, dynamic?> testCase = new Dictionary<string, dynamic?>();

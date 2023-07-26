@@ -29,7 +29,7 @@ public static class FixedWidthFlatFile
 
         CultureInfo culture = string.IsNullOrWhiteSpace(data.culture) ? CultureInfo.InvariantCulture : new CultureInfo(data.culture);
         JToken jToken = WriteToJToken(data.FileContent, culture, cancellationToken);
-        return jToken != null ? new Result (JsonConvert.SerializeObject(jToken)) : throw new Exception("JSON parse failed.");
+        return jToken != null ? new Result(JsonConvert.SerializeObject(jToken)) : throw new Exception("JSON parse failed.");
     }
 
     private static JToken WriteToJToken(List<Dictionary<string, dynamic>> data, CultureInfo culture, CancellationToken cancellationToken)

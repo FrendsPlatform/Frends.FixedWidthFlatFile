@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Frends.FixedWidthFlatFile.ConvertToJSON.Definitions;
 
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
+
+
 /// <summary>
 /// Input parameters for the Task.
 /// </summary>
@@ -25,9 +28,7 @@ public class Input
     ///	    }
     /// ]
     /// </example>
-#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
     public List<Dictionary<string, dynamic?>> FileContent { get; set; } = new List<Dictionary<string, dynamic?>>();
-#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 
     /// <summary>
     /// Culture format json will be build with
@@ -36,3 +37,6 @@ public class Input
     [DisplayFormat(DataFormatString = "Text")]
     public string culture { get; set; } = string.Empty;
 }
+
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
+
