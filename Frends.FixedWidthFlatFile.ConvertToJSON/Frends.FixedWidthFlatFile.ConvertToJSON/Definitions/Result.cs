@@ -26,8 +26,8 @@ public class Result
 	/// </example>
     public string Data { get; private set; }
 
-    internal Result(string data) 
-    { 
+    internal Result(string data)
+    {
         Data = data;
     }
 }
