@@ -9,8 +9,7 @@ Returns a xml string from given value.
 
 ## Installing
 
-You can install the Task via frends UI Task View or you can find the NuGet package from the following NuGet feed
-https://www.myget.org/F/frends-tasks/api/v2.
+You can install the Task via frends UI Task View.
 
 ## Building
 
