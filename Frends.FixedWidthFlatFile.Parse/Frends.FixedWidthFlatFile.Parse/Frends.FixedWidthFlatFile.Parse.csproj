@@ -20,4 +20,10 @@
 	<RepositoryUrl>https://github.com/FrendsPlatform/Frends.FixedWidthFlatFile/tree/main/Frends.FixedWidthFlatFile.Parse</RepositoryUrl>
   </PropertyGroup>
 
+	<ItemGroup>
+		<None Include="FrendsTaskMetadata.json" Pack="true" PackagePath="/">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
 </Project>
