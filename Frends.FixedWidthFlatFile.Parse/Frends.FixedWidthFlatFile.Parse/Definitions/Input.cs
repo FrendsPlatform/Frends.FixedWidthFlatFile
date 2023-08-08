@@ -9,10 +9,15 @@ namespace Frends.FixedWidthFlatFile.Parse.Definitions;
 public class Input
 {
     /// <summary>
-    /// Fixed width flat file content.
+    /// Fixed width flat file content in string format.
     /// </summary>
-    /// <example>Example</example>
-    [DisplayFormat(DataFormatString = "Expression")]
+    /// <example>
+    /// <code>
+    /// Name    Street    StartDate
+    /// Veijo FrendsStr 20180527 
+    /// Hodor HodorsStr 20180101
+    /// </code> </example>
+    [DisplayFormat(DataFormatString = "Text")]
     public string FlatFileContent { get; set; } = string.Empty;
 
     /// <summary>
