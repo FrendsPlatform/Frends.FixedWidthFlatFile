@@ -9,7 +9,7 @@ namespace Frends.FixedWidthFlatFile.Parse.Definitions;
 public class Options
 {
     /// <summary>
-    /// Skip data rows.
+    /// Enables skipping of data rows.
     /// </summary>
     /// <example>false</example>
     [DefaultValue(false)]
