@@ -2,7 +2,7 @@
 
 ## [1.1.0] - 2026-04-16
 ### Updated
-- Updated Result.Data documentation.
+- Updated Result.Data documentation and task description.
 
 ## [1.0.1] - 2023-07-26
 ### Updated

@@ -10,7 +10,7 @@
 	<PackageTags>Frends</PackageTags>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Description>Task for converting string to xml format.</Description>
+    <Description>Task for converting list of dictionaries to XML string.</Description>
 	<PackageProjectUrl>https://frends.com/</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/FrendsPlatform/Frends.FixedWidthFlatFile/</RepositoryUrl>
   </PropertyGroup>
