@@ -6,7 +6,7 @@
 public class Result
 {
     /// <summary>
-    /// Column name. If input data contains Header row and value is left empty, header value is used as name.
+    /// The converted data as an XML string.
     /// </summary>
     /// <example>
     /// &lt;?xml version="1.0" encoding="utf-8"?&gt;
