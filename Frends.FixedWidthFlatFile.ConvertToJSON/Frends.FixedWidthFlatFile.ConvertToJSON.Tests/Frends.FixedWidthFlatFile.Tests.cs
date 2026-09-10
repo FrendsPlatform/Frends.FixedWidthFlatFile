@@ -52,7 +52,8 @@ public class Tests
     [Test]
     public void testParseJSON()
     {
-        var result = FixedWidthFlatFile.ConvertToJSON(new Definitions.Input { FileContent = _testCases, culture = null }, new System.Threading.CancellationToken());
+        var result = FixedWidthFlatFile.ConvertToJSON(new Definitions.Input { FileContent = _testCases, culture = null }, DefaultOptions(), new System.Threading.CancellationToken());
+        Assert.IsTrue(result.Success);
         Assert.IsTrue(!string.IsNullOrEmpty(result.Data));
         Assert.AreEqual(JsonSerializer.Serialize(_testJsons), result.Data);
     }
@@ -60,7 +61,8 @@ public class Tests
     [Test]
     public void testConvertToJSONWithCulture()
     {
-        var result = FixedWidthFlatFile.ConvertToJSON(new Definitions.Input { FileContent = _testCases, culture = "fi-EN" }, new System.Threading.CancellationToken());
+        var result = FixedWidthFlatFile.ConvertToJSON(new Definitions.Input { FileContent = _testCases, culture = "fi-EN" }, DefaultOptions(), new System.Threading.CancellationToken());
+        Assert.IsTrue(result.Success);
         Assert.IsTrue(!string.IsNullOrEmpty(result.Data));
         Assert.AreEqual(JsonSerializer.Serialize(_testJsons), result.Data);
     }
@@ -71,7 +73,7 @@ public class Tests
     [Test]
     public void testParseJSON_deserialize()
     {
-        var result = FixedWidthFlatFile.ConvertToJSON(new Definitions.Input { FileContent = _testCases, culture = null }, new System.Threading.CancellationToken());
+        var result = FixedWidthFlatFile.ConvertToJSON(new Definitions.Input { FileContent = _testCases, culture = null }, DefaultOptions(), new System.Threading.CancellationToken());
         var deserialized = JsonSerializer.Deserialize<List<Json>>(result.Data);
         Assert.IsTrue(deserialized != null);
         Assert.AreEqual(_testJsons[0].Name, deserialized[0].Name);
@@ -87,8 +89,43 @@ public class Tests
     {
         Assert.Throws<ArgumentNullException>(() =>
         {
-            var result = FixedWidthFlatFile.ConvertToJSON(new Definitions.Input { FileContent = null, culture = null }, new System.Threading.CancellationToken());
+            var result = FixedWidthFlatFile.ConvertToJSON(new Definitions.Input { FileContent = null, culture = null }, DefaultOptions(), new System.Threading.CancellationToken());
         });
+    }
+
+    /// <summary>
+    /// Test that a failed Result is returned instead of throwing when ThrowErrorOnFailure is false.
+    /// </summary>
+    [Test]
+    public void testParseJSON_returnsFailedResult_whenThrowErrorOnFailureIsFalse()
+    {
+        var options = DefaultOptions();
+        options.ThrowErrorOnFailure = false;
+        var result = FixedWidthFlatFile.ConvertToJSON(new Definitions.Input { FileContent = null, culture = null }, options, new System.Threading.CancellationToken());
+        Assert.IsFalse(result.Success);
+        Assert.IsNotNull(result.Error);
+    }
+
+    /// <summary>
+    /// Test that the custom ErrorMessageOnFailure is used when the Task throws.
+    /// </summary>
+    [Test]
+    public void testParseJSON_usesCustomErrorMessageOnFailure()
+    {
+        const string customErrorMessage = "CustomErrorMessage";
+        var options = DefaultOptions();
+        options.ErrorMessageOnFailure = customErrorMessage;
+        var ex = Assert.Throws<Exception>(() =>
+        {
+            FixedWidthFlatFile.ConvertToJSON(new Definitions.Input { FileContent = null, culture = null }, options, new System.Threading.CancellationToken());
+        });
+        Assert.IsNotNull(ex);
+        Assert.That(ex.Message, Contains.Substring(customErrorMessage));
+    }
+
+    private static Definitions.Options DefaultOptions()
+    {
+        return new Definitions.Options();
     }
 }
 
