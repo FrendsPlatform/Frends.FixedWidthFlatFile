@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Frends.FixedWidthFlatFile.ConvertToJSON.Definitions;
+﻿namespace Frends.FixedWidthFlatFile.ConvertToJSON.Definitions;
 
 /// <summary>
 /// Result class.
@@ -8,27 +6,46 @@ namespace Frends.FixedWidthFlatFile.ConvertToJSON.Definitions;
 public class Result
 {
     /// <summary>
-    /// Column name. If input data contains Header row and value is left empty, header value is used as name.
+    /// Indicates whether the operation completed successfully.
+    /// </summary>
+    /// <example>true</example>
+    public bool Success { get; private set; }
+
+    /// <summary>
+    /// Error details. Null when Success is true.
+    /// </summary>
+    /// <example>null</example>
+    public Error Error { get; private set; }
+
+    /// <summary>
+    /// Converted json data.
     /// </summary>
     /// <example>
-	/// [
-	///		{
-	/// 		"Name": "Veijo",
-	/// 		"Street": "FrendsStr",
-	/// 		"StartDate": "2018-05-27T00:00:00"
-	///		},
-	///		{
-	/// 		"Name": "Hodor",
-	/// 		"Street": "HodorsStr",
-	/// 		"StartDate": "2018-01-01T00:00:00"
-	///		}
-	/// ]
-	/// </example>
+    /// [
+    ///     {
+    ///         "Name": "Veijo",
+    ///         "Street": "FrendsStr",
+    ///         "StartDate": "2018-05-27T00:00:00"
+    ///     },
+    ///     {
+    ///         "Name": "Hodor",
+    ///         "Street": "HodorsStr",
+    ///         "StartDate": "2018-01-01T00:00:00"
+    ///     }
+    /// ]
+    /// </example>
     public string Data { get; private set; }
 
-    internal Result(string data)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Result"/> class.
+    /// </summary>
+    /// <param name="success">Whether the operation completed successfully.</param>
+    /// <param name="data">Converted json data. Null on failure.</param>
+    /// <param name="error">Error details. Null when success is true.</param>
+    public Result(bool success, string data = null, Error error = null)
     {
+        Success = success;
         Data = data;
+        Error = error;
     }
 }
-
