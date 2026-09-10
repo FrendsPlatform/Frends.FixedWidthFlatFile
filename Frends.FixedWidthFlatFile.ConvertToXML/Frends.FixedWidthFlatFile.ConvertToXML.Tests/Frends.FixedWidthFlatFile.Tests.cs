@@ -49,7 +49,8 @@ public class Tests
     [Test]
     public void testParseXML()
     {
-        var result = FixedWidthFlatFile.ConvertToXML(new Definitions.Input { FileContent = _testCases }, new System.Threading.CancellationToken());
+        var result = FixedWidthFlatFile.ConvertToXML(new Definitions.Input { FileContent = _testCases }, new Definitions.Options(), new System.Threading.CancellationToken());
+        Assert.IsTrue(result.Success);
         Assert.IsNotNull(result.Data);
         Assert.AreEqual(_testXML, result.Data);
     }
@@ -57,7 +58,7 @@ public class Tests
     [Test]
     public void testParseXML_content()
     {
-        var result = FixedWidthFlatFile.ConvertToXML(new Definitions.Input { FileContent = _testCases }, new System.Threading.CancellationToken());
+        var result = FixedWidthFlatFile.ConvertToXML(new Definitions.Input { FileContent = _testCases }, new Definitions.Options(), new System.Threading.CancellationToken());
 
         XmlDocument xmlResult = new XmlDocument();
         XmlDocument xmlTest = new XmlDocument();
@@ -78,8 +79,34 @@ public class Tests
     {
         Assert.Throws<ArgumentNullException>(() =>
         {
-            var result = FixedWidthFlatFile.ConvertToXML(new Definitions.Input { FileContent = null }, new System.Threading.CancellationToken());
+            var result = FixedWidthFlatFile.ConvertToXML(new Definitions.Input { FileContent = null }, new Definitions.Options(), new System.Threading.CancellationToken());
         });
+    }
+
+    [Test]
+    public void testParseXML_returnsFailedResult_when_ThrowErrorOnFailure_is_false()
+    {
+        var options = new Definitions.Options { ThrowErrorOnFailure = false };
+        var result = FixedWidthFlatFile.ConvertToXML(new Definitions.Input { FileContent = null }, options, new System.Threading.CancellationToken());
+
+        Assert.IsFalse(result.Success);
+        Assert.IsNotNull(result.Error);
+        Assert.IsNull(result.Data);
+    }
+
+    [Test]
+    public void testParseXML_usesCustomErrorMessageOnFailure()
+    {
+        const string customErrorMessage = "Converting file content to XML failed.";
+        var options = new Definitions.Options { ThrowErrorOnFailure = true, ErrorMessageOnFailure = customErrorMessage };
+
+        var ex = Assert.Throws<Exception>(() =>
+        {
+            FixedWidthFlatFile.ConvertToXML(new Definitions.Input { FileContent = null }, options, new System.Threading.CancellationToken());
+        });
+
+        Assert.IsNotNull(ex);
+        Assert.That(ex.Message, Does.Contain(customErrorMessage));
     }
 }
 
