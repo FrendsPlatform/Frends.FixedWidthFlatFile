@@ -2,6 +2,7 @@ using Frends.FixedWidthFlatFile.Parse.Definitions;
 using NUnit.Framework;
 using System;
 using System.Linq;
+using System.Threading;
 namespace Frends.FixedWidthFlatFile.Parse.Tests;
 
 [TestFixture]
@@ -53,7 +54,7 @@ Hodor   HodorsStr 20180101 ";
         var input = new Input { ColumnSpecifications = columnSpecs, FlatFileContent = fileContent, HeaderRow = HeaderRowType.FixedWidth };
         var options = new Options { SkipRows = false };
 
-        var result = FixedWidthFlatFile.Parse(input, options);
+        var result = FixedWidthFlatFile.Parse(input, options, CancellationToken.None);
 
         Assert.AreEqual(2, result.Data.Count);
 
@@ -81,7 +82,7 @@ Hodor   HodorsStr 20180101 ";
         var input = new Input { ColumnSpecifications = columnSpecs, FlatFileContent = fileContent, HeaderRow = HeaderRowType.Delimited, HeaderDelimiter = ";" };
         var options = new Options { SkipRows = false };
 
-        var result = FixedWidthFlatFile.Parse(input, options);
+        var result = FixedWidthFlatFile.Parse(input, options, CancellationToken.None);
 
         Assert.AreEqual(2, result.Data.Count);
 
@@ -107,7 +108,7 @@ Hodor   HodorsStr 20180101 ";
         var input = new Input { ColumnSpecifications = columnSpecs, FlatFileContent = fileContent, HeaderRow = HeaderRowType.None };
         var options = new Options { SkipRows = false };
 
-        var result = FixedWidthFlatFile.Parse(input, options);
+        var result = FixedWidthFlatFile.Parse(input, options, CancellationToken.None);
 
         Assert.AreEqual(2, result.Data.Count);
 
@@ -133,7 +134,7 @@ Hodor   HodorsStr 20180101 " + System.Environment.NewLine;
         var input = new Input { ColumnSpecifications = columnSpecs, FlatFileContent = fileContent, HeaderRow = HeaderRowType.None };
         var options = new Options { SkipRows = false };
 
-        var result = FixedWidthFlatFile.Parse(input, options);
+        var result = FixedWidthFlatFile.Parse(input, options, CancellationToken.None);
 
         Assert.AreEqual(2, result.Data.Count);
 
