@@ -6,6 +6,18 @@
 public class Result
 {
     /// <summary>
+    /// Indicates whether the operation completed successfully.
+    /// </summary>
+    /// <example>true</example>
+    public bool Success { get; private set; }
+
+    /// <summary>
+    /// Error details. Null when Success is true.
+    /// </summary>
+    /// <example>null</example>
+    public Error Error { get; private set; }
+
+    /// <summary>
     /// The converted data as an XML string.
     /// </summary>
     /// <example>
@@ -27,8 +39,10 @@ public class Result
     /// </example>
     public string Data { get; private set; }
 
-    internal Result(string data)
+    internal Result(bool success, string data = null, Error error = null)
     {
+        Success = success;
         Data = data;
+        Error = error;
     }
 }

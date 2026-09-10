@@ -1,4 +1,5 @@
 ﻿using Frends.FixedWidthFlatFile.ConvertToXML.Definitions;
+using Frends.FixedWidthFlatFile.ConvertToXML.Helpers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,22 +11,36 @@ using System.Xml;
 #pragma warning disable 1591
 
 namespace Frends.FixedWidthFlatFile.ConvertToXML;
+
+/// <summary>
+/// Container class for Frends.FixedWidthFlatFile.ConvertToXML Task.
+/// </summary>
 public static class FixedWidthFlatFile
 {
     /// <summary>
     /// Task converts List&lt;dictionary&lt;string, dynamic&gt;&gt; typed object to xml string. Mainly used to convert Frends.FixedWidthFlatFile.Parse result object to xml string.
     /// [Documentation](https://tasks.frends.com/tasks/frends-tasks/Frends.FixedWidthFlatFile.ConvertToXML)
     /// </summary>
-    /// <param name="data">What value to convert.</param>
+    /// <param name="input">What value to convert.</param>
+    /// <param name="options">Additional parameters.</param>
     /// <param name="cancellationToken"></param>
-    /// <returns>object { string Data }</returns>
-    public static Result ConvertToXML([PropertyTab] Input data, CancellationToken cancellationToken)
+    /// <returns>Object { bool Success, Error Error, string Data }</returns>
+    public static Result ConvertToXML([PropertyTab] Input input, [PropertyTab] Options options, CancellationToken cancellationToken)
     {
-        if (data.FileContent == null || data.FileContent.Count <= 0)
-            throw new ArgumentNullException("FileContent not given. Cannot be empty.");
+        try
+        {
+            if (input.FileContent == null || input.FileContent.Count <= 0)
+                throw new ArgumentNullException(nameof(input), "FileContent not given. Cannot be empty.");
 
-        string xml = WriteToXmlString(data.FileContent, cancellationToken);
-        return xml != null ? new Result(xml) : throw new Exception("XML parse failed.");
+            var xml = WriteToXmlString(input.FileContent, cancellationToken);
+            if (xml == null) throw new Exception("XML parse failed.");
+
+            return new Result(true, xml);
+        }
+        catch (Exception ex)
+        {
+            return ex.Handle(options);
+        }
     }
 
     private static string WriteToXmlString(List<Dictionary<string, dynamic>> data, CancellationToken cancellationToken)
