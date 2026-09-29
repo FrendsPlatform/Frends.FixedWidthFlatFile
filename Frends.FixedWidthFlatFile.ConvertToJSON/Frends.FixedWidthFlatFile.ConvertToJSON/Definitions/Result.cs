@@ -6,6 +6,19 @@
 public class Result
 {
     /// <summary>
+    /// Initializes a new instance of the <see cref="Result"/> class.
+    /// </summary>
+    /// <param name="success">Whether the operation completed successfully.</param>
+    /// <param name="data">Converted json data. Null on failure.</param>
+    /// <param name="error">Error details. Null when success is true.</param>
+    public Result(bool success, string data = null, Error error = null)
+    {
+        Success = success;
+        Data = data;
+        Error = error;
+    }
+
+    /// <summary>
     /// Indicates whether the operation completed successfully.
     /// </summary>
     /// <example>true</example>
@@ -35,17 +48,4 @@ public class Result
     /// ]
     /// </example>
     public string Data { get; private set; }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Result"/> class.
-    /// </summary>
-    /// <param name="success">Whether the operation completed successfully.</param>
-    /// <param name="data">Converted json data. Null on failure.</param>
-    /// <param name="error">Error details. Null when success is true.</param>
-    public Result(bool success, string data = null, Error error = null)
-    {
-        Success = success;
-        Data = data;
-        Error = error;
-    }
 }

@@ -1,12 +1,12 @@
-﻿using Frends.FixedWidthFlatFile.ConvertToJSON.Definitions;
-using Frends.FixedWidthFlatFile.ConvertToJSON.Helpers;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Threading;
+using Frends.FixedWidthFlatFile.ConvertToJSON.Definitions;
+using Frends.FixedWidthFlatFile.ConvertToJSON.Helpers;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Frends.FixedWidthFlatFile.ConvertToJSON;
 
@@ -29,7 +29,7 @@ public static class FixedWidthFlatFile
         {
             if (input.FileContent == null || input.FileContent.Count <= 0) throw new ArgumentNullException("FileContent not given or in wrong type. Cannot be empty.");
 
-            CultureInfo culture = string.IsNullOrWhiteSpace(input.culture) ? CultureInfo.InvariantCulture : new CultureInfo(input.culture);
+            CultureInfo culture = string.IsNullOrWhiteSpace(input.Culture) ? CultureInfo.InvariantCulture : new CultureInfo(input.Culture);
             JToken jToken = WriteToJToken(input.FileContent, culture, cancellationToken);
             if (jToken == null) throw new Exception("JSON parse failed.");
 
@@ -60,11 +60,12 @@ public static class FixedWidthFlatFile
                     cancellationToken.ThrowIfCancellationRequested();
 
                     writer.WritePropertyName(key);
+
                     // null check
                     if (row[key] != null)
                         writer.WriteValue(row[key]);
-                    else //write empty string value for null fields
-                        writer.WriteValue("");
+                    else // write empty string value for null fields
+                        writer.WriteValue(string.Empty);
                 }
 
                 writer.WriteEndObject(); // end row
