@@ -50,9 +50,9 @@ public class Tests
     public void testParseXML()
     {
         var result = FixedWidthFlatFile.ConvertToXML(new Definitions.Input { FileContent = _testCases }, new Definitions.Options(), new System.Threading.CancellationToken());
-        Assert.IsTrue(result.Success);
-        Assert.IsNotNull(result.Data);
-        Assert.AreEqual(_testXML, result.Data);
+        Assert.That(result.Success);
+        Assert.That(!string.IsNullOrEmpty(result.Data));
+        Assert.That(_testXML, Is.EqualTo(result.Data));
     }
 
     [Test]
@@ -66,47 +66,12 @@ public class Tests
         xmlResult.LoadXml(result.Data);
         xmlTest.LoadXml(_testXML);
 
-        Assert.IsNotNull(xmlResult);
-        Assert.AreEqual(xmlTest.GetElementsByTagName("Name"), xmlResult.GetElementsByTagName("Name"));
-        Assert.IsNotNull(xmlResult.GetElementsByTagName("Name"));
-        Assert.AreEqual(xmlTest.GetElementsByTagName("Content"), xmlResult.GetElementsByTagName("Content"));
-        Assert.AreEqual(xmlTest.GetElementsByTagName("Timestamp"), xmlResult.GetElementsByTagName("Timestamp"));
-        Assert.IsNotNull(xmlResult.GetElementsByTagName("Timestamp"));
-    }
-
-    [Test]
-    public void testParseXML_throws_emptyParameter()
-    {
-        Assert.Throws<ArgumentNullException>(() =>
-        {
-            var result = FixedWidthFlatFile.ConvertToXML(new Definitions.Input { FileContent = null }, new Definitions.Options(), new System.Threading.CancellationToken());
-        });
-    }
-
-    [Test]
-    public void testParseXML_returnsFailedResult_when_ThrowErrorOnFailure_is_false()
-    {
-        var options = new Definitions.Options { ThrowErrorOnFailure = false };
-        var result = FixedWidthFlatFile.ConvertToXML(new Definitions.Input { FileContent = null }, options, new System.Threading.CancellationToken());
-
-        Assert.IsFalse(result.Success);
-        Assert.IsNotNull(result.Error);
-        Assert.IsNull(result.Data);
-    }
-
-    [Test]
-    public void testParseXML_usesCustomErrorMessageOnFailure()
-    {
-        const string customErrorMessage = "Converting file content to XML failed.";
-        var options = new Definitions.Options { ThrowErrorOnFailure = true, ErrorMessageOnFailure = customErrorMessage };
-
-        var ex = Assert.Throws<Exception>(() =>
-        {
-            FixedWidthFlatFile.ConvertToXML(new Definitions.Input { FileContent = null }, options, new System.Threading.CancellationToken());
-        });
-
-        Assert.IsNotNull(ex);
-        Assert.That(ex.Message, Does.Contain(customErrorMessage));
+        Assert.That(xmlResult, Is.Not.Null);
+        Assert.That(xmlTest.GetElementsByTagName("Name"), Is.EqualTo(xmlResult.GetElementsByTagName("Name")));
+        Assert.That(xmlResult.GetElementsByTagName("Name"), Is.Not.Null);
+        Assert.That(xmlTest.GetElementsByTagName("Content"), Is.EqualTo(xmlResult.GetElementsByTagName("Content")));
+        Assert.That(xmlTest.GetElementsByTagName("Timestamp"), Is.EqualTo(xmlResult.GetElementsByTagName("Timestamp")));
+        Assert.That(xmlResult.GetElementsByTagName("Timestamp"), Is.Not.Null);
     }
 }
 

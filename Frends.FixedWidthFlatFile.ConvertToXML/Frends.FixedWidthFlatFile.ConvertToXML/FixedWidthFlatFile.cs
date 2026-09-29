@@ -1,12 +1,12 @@
-﻿using Frends.FixedWidthFlatFile.ConvertToXML.Definitions;
-using Frends.FixedWidthFlatFile.ConvertToXML.Helpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Text;
 using System.Threading;
 using System.Xml;
+using Frends.FixedWidthFlatFile.ConvertToXML.Definitions;
+using Frends.FixedWidthFlatFile.ConvertToXML.Helpers;
 
 #pragma warning disable 1591
 
@@ -23,7 +23,7 @@ public static class FixedWidthFlatFile
     /// </summary>
     /// <param name="input">What value to convert.</param>
     /// <param name="options">Additional parameters.</param>
-    /// <param name="cancellationToken"></param>
+    /// <param name="cancellationToken">CancellationToken given by Frends.</param>
     /// <returns>Object { bool Success, Error Error, string Data }</returns>
     public static Result ConvertToXML([PropertyTab] Input input, [PropertyTab] Options options, CancellationToken cancellationToken)
     {
@@ -62,6 +62,7 @@ public static class FixedWidthFlatFile
                         foreach (var key in row.Keys)
                         {
                             cancellationToken.ThrowIfCancellationRequested();
+
                             // value null check
                             if (row[key] != null)
                             {
@@ -71,14 +72,19 @@ public static class FixedWidthFlatFile
                                     writer.WriteElementString(key, row[key].ToString());
                             }
                             else // write empty string for null values
-                                writer.WriteElementString(key, "");
+                            {
+                                writer.WriteElementString(key, string.Empty);
+                            }
                         }
+
                         writer.WriteEndElement(); // end Row
                     }
+
                     writer.WriteEndElement(); // end Rows
                     writer.WriteEndElement(); // end Root
                     writer.WriteEndDocument(); // end doc
                 }
+
                 return Encoding.UTF8.GetString(ms.ToArray());
             }
         }

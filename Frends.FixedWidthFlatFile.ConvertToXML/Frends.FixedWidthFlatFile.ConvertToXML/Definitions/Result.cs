@@ -5,6 +5,13 @@
 /// </summary>
 public class Result
 {
+    internal Result(bool success, string data = null, Error error = null)
+    {
+        Success = success;
+        Data = data;
+        Error = error;
+    }
+
     /// <summary>
     /// Indicates whether the operation completed successfully.
     /// </summary>
@@ -38,11 +45,4 @@ public class Result
     /// &lt;/Root&gt;
     /// </example>
     public string Data { get; private set; }
-
-    internal Result(bool success, string data = null, Error error = null)
-    {
-        Success = success;
-        Data = data;
-        Error = error;
-    }
 }
