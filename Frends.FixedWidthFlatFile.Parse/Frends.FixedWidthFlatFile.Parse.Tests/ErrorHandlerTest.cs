@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using Frends.FixedWidthFlatFile.Parse.Definitions;
+using NUnit.Framework;
 using System;
 using System.Threading;
 
@@ -16,7 +17,7 @@ namespace Frends.FixedWidthFlatFile.Parse.Tests
 
         private static Definitions.Input DefaultInput()
         {
-            return new Definitions.Input();
+            return new Input { ColumnSpecifications = Array.Empty<ColumnSpecification>(), FlatFileContent = "1", HeaderRow = HeaderRowType.Delimited };
         }
 
         [Test]
