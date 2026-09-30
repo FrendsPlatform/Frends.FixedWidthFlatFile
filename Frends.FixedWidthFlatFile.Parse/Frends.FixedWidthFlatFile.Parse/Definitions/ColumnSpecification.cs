@@ -13,7 +13,7 @@ public class ColumnSpecification
     /// </summary>
     /// <example>Example</example>
     [DisplayFormat(DataFormatString = "Text")]
-    public string Name { get; set; } = "";
+    public string Name { get; set; } = string.Empty;
 
     /// <summary>
     /// Column type.

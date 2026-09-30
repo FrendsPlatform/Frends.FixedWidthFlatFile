@@ -5,11 +5,20 @@
 /// </summary>
 public enum HeaderRowType
 {
-#pragma warning disable CS1591 // self explanatory
+    /// <summary>
+    /// Represents no value.
+    /// </summary>
     None,
+
+    /// <summary>
+    /// Represents fixed-width formatting.
+    /// </summary>
     FixedWidth,
-    Delimited
-#pragma warning restore CS1591 // self explanatory
+
+    /// <summary>
+    /// Represents content formatted as delimited values.
+    /// </summary>
+    Delimited,
 }
 
 /// <summary>
@@ -18,13 +27,16 @@ public enum HeaderRowType
 public enum ColumnType
 {
 #pragma warning disable CS1591 // self explanatory
+#pragma warning disable SA1602 // Enumeration items should be documented
     String,
+
     Int,
     Long,
     Decimal,
     Double,
     Boolean,
     DateTime,
-    Char
+    Char,
 #pragma warning restore CS1591 // self explanatory
+#pragma warning restore SA1602 // Enumeration items should be documented
 }

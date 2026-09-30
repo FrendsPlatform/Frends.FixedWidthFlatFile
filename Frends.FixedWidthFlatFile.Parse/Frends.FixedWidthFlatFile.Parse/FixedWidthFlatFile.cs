@@ -1,8 +1,7 @@
-﻿using Frends.FixedWidthFlatFile.Parse.Definitions;
-using Frends.FixedWidthFlatFile.Parse.Helpers;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Globalization;
-using System.Threading;
+using Frends.FixedWidthFlatFile.Parse.Definitions;
+using Frends.FixedWidthFlatFile.Parse.Helpers;
 
 namespace Frends.FixedWidthFlatFile.Parse;
 
@@ -12,7 +11,7 @@ namespace Frends.FixedWidthFlatFile.Parse;
 public static class FixedWidthFlatFile
 {
     /// <summary>
-    /// Parse Fixed Width data to object. 
+    /// Parse Fixed Width data to object.
     /// [Documentation](https://tasks.frends.com/tasks/frends-tasks/Frends.FixedWidthFlatFile.Parse)
     /// </summary>
     /// <param name="input">Input definition.</param>
@@ -27,7 +26,6 @@ public static class FixedWidthFlatFile
             var headers = new List<string>();
             var outputData = new List<Dictionary<string, object?>>();
 
-            //== Read input data ==/
             using (var reader = new StringReader(input.FlatFileContent))
             {
                 inputRows = ReadLinesToList(reader);
@@ -35,7 +33,6 @@ public static class FixedWidthFlatFile
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            //== Parse header row ==/
             switch (input.HeaderRow)
             {
                 case HeaderRowType.Delimited:
@@ -48,6 +45,7 @@ public static class FixedWidthFlatFile
                     inputRows.RemoveAt(0);
                     break;
             }
+
             if (headers.Count > 0)
             {
                 // add header values as name if not set in column specification
@@ -60,8 +58,6 @@ public static class FixedWidthFlatFile
                 }
             }
 
-            //== Parse data rows ==/
-
             // Skip rows?
             if (options.SkipRows)
             {
@@ -73,16 +69,17 @@ public static class FixedWidthFlatFile
                     else
                         inputRows = inputRows.Skip(options.SkipRowsFromTop).ToList();
                 }
+
                 if (options.SkipRowsFromBottom > 0)
                 {
                     // skipping more rows that exist?
                     if (options.SkipRowsFromBottom >= inputRows.Count)
                         inputRows.Clear();
                     else
-                        inputRows = inputRows.Take((inputRows.Count - options.SkipRowsFromBottom)).ToList();
+                        inputRows = inputRows.Take(inputRows.Count - options.SkipRowsFromBottom).ToList();
                 }
             }
-            //== Process data rows ==/
+
             foreach (var dataRow in inputRows)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -101,9 +98,9 @@ public static class FixedWidthFlatFile
     {
         var allLines = new List<string>();
         string? line;
-        while (null != (line = reader.ReadLine()))
+        while ((line = reader.ReadLine()) != null)
         {
-            //skip empty lines
+            // skip empty lines
             if (!string.IsNullOrWhiteSpace(line))
                 allLines.Add(line);
         }
@@ -129,6 +126,7 @@ public static class FixedWidthFlatFile
             {
                 var value = row.Substring(startIndex, columnSpec.Length);
                 values.Add(value.Trim());
+
                 // move substring start index
                 startIndex += columnSpec.Length;
             }
@@ -157,7 +155,9 @@ public static class FixedWidthFlatFile
                 columnName = $"Field_{i + 1}";
 
             if (string.IsNullOrWhiteSpace(columnValue))
+            {
                 parsedData.AddKeyValuePair(columnSpec.Name, null);
+            }
             else
             {
                 switch (columnSpec.Type)
@@ -169,9 +169,7 @@ public static class FixedWidthFlatFile
                         parsedData.AddKeyValuePair(columnName, char.Parse(columnValue));
                         break;
                     case ColumnType.DateTime:
-                        parsedData.AddKeyValuePair(columnName, string.IsNullOrEmpty(columnSpec.DateTimeFormat) ?
-                            DateTime.Parse(columnValue) :
-                            DateTime.ParseExact(columnValue, columnSpec.DateTimeFormat, CultureInfo.InvariantCulture));
+                        parsedData.AddKeyValuePair(columnName, string.IsNullOrEmpty(columnSpec.DateTimeFormat) ? DateTime.Parse(columnValue) : DateTime.ParseExact(columnValue, columnSpec.DateTimeFormat, CultureInfo.InvariantCulture));
                         break;
                     case ColumnType.Decimal:
                         var cultureDecimal = columnValue.Contains(',') ? CultureInfo.GetCultureInfo("fi-FI") : CultureInfo.InvariantCulture;
@@ -193,6 +191,7 @@ public static class FixedWidthFlatFile
                 }
             }
         }
+
         return parsedData;
     }
 
@@ -205,6 +204,7 @@ public static class FixedWidthFlatFile
             key = $"{originalKey}_{renameIndex}";
             renameIndex++;
         }
+
         dictionary.Add(key, value);
     }
 }

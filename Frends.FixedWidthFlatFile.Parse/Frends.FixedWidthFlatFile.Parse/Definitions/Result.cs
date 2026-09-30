@@ -5,6 +5,13 @@
 /// </summary>
 public class Result
 {
+    internal Result(bool success, List<Dictionary<string, object?>> data, Error? error = null)
+    {
+        Success = success;
+        Data = data;
+        Error = error;
+    }
+
     /// <summary>
     /// Indicates whether the operation completed successfully.
     /// </summary>
@@ -22,11 +29,4 @@ public class Result
     /// </summary>
     /// <example>{[ Name, Foo ], [ Street, Bar ]}</example>
     public List<Dictionary<string, object?>> Data { get; private set; }
-
-    internal Result(bool success, List<Dictionary<string, object?>> data, Error? error = null)
-    {
-        Success = success;
-        Data = data;
-        Error = error;
-    }
 }

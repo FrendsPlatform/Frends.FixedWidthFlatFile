@@ -14,8 +14,8 @@ public class ExtensionTests
         var input = "h1;h2;h3;h4,h5";
         var result = FixedWidthFlatFile.SplitToList(input, ';');
 
-        Assert.AreEqual(4, result.Count);
-        Assert.AreEqual("h4,h5", result.Last());
+        Assert.That(4, Is.EqualTo(result.Count));
+        Assert.That("h4,h5", Is.EqualTo(result.Last()));
     }
 
     [Test]
@@ -29,9 +29,9 @@ public class ExtensionTests
 
         var result = FixedWidthFlatFile.SplitToList(input, columnSpecification);
 
-        Assert.AreEqual(3, result.Count);
-        Assert.AreEqual("hodor", result.First());
-        Assert.AreEqual("tenchars10", result.Last());
+        Assert.That(3, Is.EqualTo(result.Count));
+        Assert.That("hodor", Is.EqualTo(result.First()));
+        Assert.That("tenchars10", Is.EqualTo(result.Last()));
     }
 }
 
@@ -56,14 +56,14 @@ Hodor   HodorsStr 20180101 ";
 
         var result = FixedWidthFlatFile.Parse(input, options, CancellationToken.None);
 
-        Assert.AreEqual(2, result.Data.Count);
+        Assert.That(2, Is.EqualTo(result.Data.Count));
 
         var firstRow = result.Data.First();
-        Assert.IsTrue(firstRow.ContainsKey("Name"));
-        Assert.AreEqual("Veijo", firstRow["Name"]);
-        Assert.IsTrue(firstRow.ContainsKey("Street"));
-        Assert.AreEqual("FrendsStr", firstRow["Street"]);
-        Assert.IsTrue(firstRow.ContainsKey("StartDate"));
+        Assert.That(firstRow.ContainsKey("Name"), Is.True);
+        Assert.That("Veijo", Is.EqualTo(firstRow["Name"]));
+        Assert.That(firstRow.ContainsKey("Street"), Is.True);
+        Assert.That("FrendsStr", Is.EqualTo(firstRow["Street"]));
+        Assert.That(firstRow.ContainsKey("StartDate"), Is.True);
     }
 
     [Test]
@@ -84,14 +84,14 @@ Hodor   HodorsStr 20180101 ";
 
         var result = FixedWidthFlatFile.Parse(input, options, CancellationToken.None);
 
-        Assert.AreEqual(2, result.Data.Count);
+        Assert.That(2, Is.EqualTo(result.Data.Count));
 
         var firstRow = result.Data.First();
-        Assert.IsTrue(firstRow.ContainsKey("Name"));
-        Assert.AreEqual("Veijo", firstRow["Name"]);
-        Assert.IsTrue(firstRow.ContainsKey("Street"));
-        Assert.AreEqual("FrendsStr", firstRow["Street"]);
-        Assert.IsTrue(firstRow.ContainsKey("StartDate"));
+        Assert.That(firstRow.ContainsKey("Name"), Is.True);
+        Assert.That("Veijo", Is.EqualTo(firstRow["Name"]));
+        Assert.That(firstRow.ContainsKey("Street"), Is.True);
+        Assert.That("FrendsStr", Is.EqualTo(firstRow["Street"]));
+        Assert.That(firstRow.ContainsKey("StartDate"), Is.True);
     }
 
     [Test]
@@ -110,14 +110,14 @@ Hodor   HodorsStr 20180101 ";
 
         var result = FixedWidthFlatFile.Parse(input, options, CancellationToken.None);
 
-        Assert.AreEqual(2, result.Data.Count);
+        Assert.That(2, Is.EqualTo(result.Data.Count));
 
         var firstRow = result.Data.First();
-        Assert.IsTrue(firstRow.ContainsKey("Name"));
-        Assert.AreEqual("Veijo", firstRow["Name"]);
-        Assert.IsTrue(firstRow.ContainsKey("Street"));
-        Assert.AreEqual("FrendsStr", firstRow["Street"]);
-        Assert.IsTrue(firstRow.ContainsKey("StartDate"));
+        Assert.That(firstRow.ContainsKey("Name"), Is.True);
+        Assert.That("Veijo", Is.EqualTo(firstRow["Name"]));
+        Assert.That(firstRow.ContainsKey("Street"), Is.True);
+        Assert.That("FrendsStr", Is.EqualTo(firstRow["Street"]));
+        Assert.That(firstRow.ContainsKey("StartDate"), Is.True);
     }
 
     [Test]
@@ -136,14 +136,14 @@ Hodor   HodorsStr 20180101 " + System.Environment.NewLine;
 
         var result = FixedWidthFlatFile.Parse(input, options, CancellationToken.None);
 
-        Assert.AreEqual(2, result.Data.Count);
+        Assert.That(2, Is.EqualTo(result.Data.Count));
 
         var firstRow = result.Data.First();
-        Assert.IsTrue(firstRow.ContainsKey("Name"));
-        Assert.AreEqual("Veijo", firstRow["Name"]);
-        Assert.IsTrue(firstRow.ContainsKey("Field_2"));
-        Assert.AreEqual("FrendsStr", firstRow["Field_2"]);
-        Assert.IsTrue(firstRow.ContainsKey("Field_3"));
+        Assert.That(firstRow.ContainsKey("Name"), Is.True);
+        Assert.That("Veijo", Is.EqualTo(firstRow["Name"]));
+        Assert.That(firstRow.ContainsKey("Field_2"), Is.True);
+        Assert.That("FrendsStr", Is.EqualTo(firstRow["Field_2"]));
+        Assert.That(firstRow.ContainsKey("Field_3"), Is.True);
     }
 
     [Test]
@@ -160,9 +160,9 @@ Hodor   HodorsStr 20180101 " + System.Environment.NewLine;
         };
         var result = FixedWidthFlatFile.ParseDataRow(testData, columns);
 
-        Assert.AreEqual(5, result.Count);
-        Assert.AreEqual("Field_1", result.Keys.First());
-        Assert.AreEqual("Field_5", result.Keys.Last());
+        Assert.That(5, Is.EqualTo(result.Count));
+        Assert.That("Field_1", Is.EqualTo(result.Keys.First()));
+        Assert.That("Field_5", Is.EqualTo(result.Keys.Last()));
     }
 
     [Test]
@@ -179,12 +179,12 @@ Hodor   HodorsStr 20180101 " + System.Environment.NewLine;
             };
         var result = FixedWidthFlatFile.ParseDataRow(testData, columns);
 
-        Assert.AreEqual(6, result.Count);
-        Assert.AreEqual(typeof(bool), result["Boolean"]?.GetType());
-        Assert.IsTrue(result["Char"] is Char);
-        Assert.AreEqual(typeof(double), result["Double"]?.GetType());
-        Assert.AreEqual(typeof(long), result["Long"]?.GetType());
-        Assert.AreEqual(typeof(DateTime), result["DateTime"]?.GetType());
-        Assert.AreEqual(typeof(int), result["Int"]?.GetType());
+        Assert.That(6, Is.EqualTo(result.Count));
+        Assert.That(typeof(bool), Is.EqualTo(result["Boolean"]?.GetType()));
+        Assert.That(result["Char"] is Char, Is.True);
+        Assert.That(typeof(double), Is.EqualTo(result["Double"]?.GetType()));
+        Assert.That(typeof(long), Is.EqualTo(result["Long"]?.GetType()));
+        Assert.That(typeof(DateTime), Is.EqualTo(result["DateTime"]?.GetType()));
+        Assert.That(typeof(int), Is.EqualTo(result["Int"]?.GetType()));
     }
 }
