@@ -14,7 +14,7 @@ public class Input
     /// <example>
     /// <code>
     /// Name    Street    StartDate
-    /// Veijo FrendsStr 20180527 
+    /// Veijo FrendsStr 20180527
     /// Hodor HodorsStr 20180101
     /// </code> </example>
     [DisplayFormat(DataFormatString = "Text")]

@@ -5,6 +5,25 @@
 /// </summary>
 public class Result
 {
+    internal Result(bool success, List<Dictionary<string, dynamic?>> data, Error? error = null)
+    {
+        Success = success;
+        Data = data;
+        Error = error;
+    }
+
+    /// <summary>
+    /// Indicates whether the operation completed successfully.
+    /// </summary>
+    /// <example>true</example>
+    public bool Success { get; private set; }
+
+    /// <summary>
+    /// Error details. Null when Success is true.
+    /// </summary>
+    /// <example>null</example>
+    public Error? Error { get; private set; }
+
     /// <summary>
     /// Parsed fixed flat file data.
     /// </summary>
