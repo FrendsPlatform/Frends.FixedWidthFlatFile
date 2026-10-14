@@ -44,7 +44,7 @@ internal static class ErrorHandler
 
         return new Result(
             false,
-            new List<Dictionary<string, dynamic?>>(),
+            new List<Dictionary<string, object?>>(),
             new Error
             {
                 Message = errorMessage,

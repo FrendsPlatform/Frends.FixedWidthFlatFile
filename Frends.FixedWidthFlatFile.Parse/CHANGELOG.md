@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.0.0] - 2026-10-14
+### Changed
+- The values in the result `Data` are now typed as `object` instead of `dynamic`, so that the Task no longer exposes third-party types. The values returned remain the same.
+
 ## [1.1.0] - 2026-09-30
 ### Changed
 - Target framework updated to .NET 8.
