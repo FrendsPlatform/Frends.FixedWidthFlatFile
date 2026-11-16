@@ -10,6 +10,40 @@ namespace Frends.FixedWidthFlatFile.ConvertToXML.Definitions;
 public class Options
 {
     /// <summary>
+    /// None: Flat file does not contain header row
+    /// FixedWidth: Header row is parsed using column specification
+    /// Delimited: Header row is parsed using delimiter char
+    /// </summary>
+    /// <example>HeaderRowType.FixedWidth</example>
+    [DefaultValue(HeaderRowType.FixedWidth)]
+    public HeaderRowType HeaderRow { get; set; }
+
+    /// <summary>
+    /// If header row uses delimiter set it here.
+    /// </summary>
+    /// <example>;</example>
+    [UIHint(nameof(HeaderRow), "", HeaderRowType.Delimited)]
+    [RequiredIf(nameof(HeaderRow), HeaderRowType.Delimited)]
+    [DisplayFormat(DataFormatString = "Text")]
+    public string HeaderDelimiter { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Column specifications for the data that is being converted.
+    /// </summary>
+    /// <example>[ Example, ColumnType.String, yyyy-MM-ddTHH:mm:ss, 5 ]</example>
+    [Required]
+    [MinLength(1, ErrorMessage = "ColumnSpecifications not given. Cannot be empty.")]
+    public ColumnSpecification[] ColumnSpecifications { get; set; } = System.Array.Empty<ColumnSpecification>();
+
+    /// <summary>
+    /// Culture used to parse numeric and date values of the flat file. An empty value uses invariant culture.
+    /// </summary>
+    /// <example>fi-FI</example>
+    [DisplayFormat(DataFormatString = "Text")]
+    [DefaultValue("")]
+    public string Culture { get; set; } = string.Empty;
+
+    /// <summary>
     /// Enables skipping of data rows.
     /// </summary>
     /// <example>false</example>

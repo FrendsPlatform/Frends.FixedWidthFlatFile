@@ -10,21 +10,21 @@ namespace Frends.FixedWidthFlatFile.ConvertToXML.Helpers;
 
 internal static class FlatFileParser
 {
-    internal static ParsedFlatFile Parse(string content, Input input, Options options, CancellationToken cancellationToken)
+    internal static ParsedFlatFile Parse(string content, Options options, CancellationToken cancellationToken)
     {
         var rows = ReadLines(content);
 
         cancellationToken.ThrowIfCancellationRequested();
 
         var headers = new List<string>();
-        switch (input.HeaderRow)
+        switch (options.HeaderRow)
         {
             case HeaderRowType.Delimited:
-                headers = SplitToList(rows[0], Convert.ToChar(input.HeaderDelimiter));
+                headers = SplitToList(rows[0], Convert.ToChar(options.HeaderDelimiter));
                 rows.RemoveAt(0);
                 break;
             case HeaderRowType.FixedWidth:
-                headers = SplitToList(rows[0], input.ColumnSpecifications);
+                headers = SplitToList(rows[0], options.ColumnSpecifications);
                 rows.RemoveAt(0);
                 break;
         }
@@ -35,14 +35,18 @@ internal static class FlatFileParser
             rows = rows.Take(Math.Max(rows.Count - Math.Max(options.SkipRowsFromBottom, 0), 0)).ToList();
         }
 
+        var culture = string.IsNullOrWhiteSpace(options.Culture)
+            ? CultureInfo.InvariantCulture
+            : CultureInfo.GetCultureInfo(options.Culture.Trim(), predefinedOnly: true);
+
         var parsedRows = new List<object[]>(rows.Count);
         foreach (var row in rows)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            parsedRows.Add(ParseDataRow(row, input.ColumnSpecifications));
+            parsedRows.Add(ParseDataRow(row, options.ColumnSpecifications, culture));
         }
 
-        return new ParsedFlatFile(ResolveColumnNames(input.ColumnSpecifications, headers), parsedRows);
+        return new ParsedFlatFile(ResolveColumnNames(options.ColumnSpecifications, headers), parsedRows);
     }
 
     private static List<string> ReadLines(string content)
@@ -50,8 +54,7 @@ internal static class FlatFileParser
         var allLines = new List<string>();
         using var reader = new StringReader(content);
 
-        string line;
-        while ((line = reader.ReadLine()) != null)
+        while (reader.ReadLine() is { } line)
         {
             // skip empty lines
             if (!string.IsNullOrWhiteSpace(line))
@@ -97,7 +100,9 @@ internal static class FlatFileParser
     /// Resolves the name of each column. A name set in the column specification wins over the header value,
     /// columns without any name get Field_{column number}. Duplicate names are made unique with a _{index} suffix.
     /// </summary>
-    private static string[] ResolveColumnNames(ColumnSpecification[] columnSpecifications, IReadOnlyList<string> headers)
+    private static string[] ResolveColumnNames(
+        ColumnSpecification[] columnSpecifications,
+        IReadOnlyList<string> headers)
     {
         var usedNames = new HashSet<string>();
         var names = new string[columnSpecifications.Length];
@@ -126,7 +131,7 @@ internal static class FlatFileParser
         return names;
     }
 
-    private static object[] ParseDataRow(string row, ColumnSpecification[] columnSpecifications)
+    private static object[] ParseDataRow(string row, ColumnSpecification[] columnSpecifications, CultureInfo culture)
     {
         var rowValues = SplitToList(row, columnSpecifications);
         var parsedValues = new object[rowValues.Count];
@@ -135,13 +140,13 @@ internal static class FlatFileParser
         {
             parsedValues[i] = string.IsNullOrWhiteSpace(rowValues[i])
                 ? null
-                : ParseValue(rowValues[i], columnSpecifications[i]);
+                : ParseValue(rowValues[i], columnSpecifications[i], culture);
         }
 
         return parsedValues;
     }
 
-    private static object ParseValue(string value, ColumnSpecification columnSpecification)
+    private static object ParseValue(string value, ColumnSpecification columnSpecification, CultureInfo culture)
     {
         switch (columnSpecification.Type)
         {
@@ -151,24 +156,18 @@ internal static class FlatFileParser
                 return char.Parse(value);
             case ColumnType.DateTime:
                 return string.IsNullOrEmpty(columnSpecification.DateTimeFormat)
-                    ? DateTime.Parse(value)
-                    : DateTime.ParseExact(value, columnSpecification.DateTimeFormat, CultureInfo.InvariantCulture);
+                    ? DateTime.Parse(value, culture)
+                    : DateTime.ParseExact(value, columnSpecification.DateTimeFormat, culture);
             case ColumnType.Decimal:
-                return decimal.Parse(value, GetNumberCulture(value));
+                return decimal.Parse(value, culture);
             case ColumnType.Double:
-                return double.Parse(value, GetNumberCulture(value));
+                return double.Parse(value, culture);
             case ColumnType.Int:
-                return int.Parse(value);
+                return int.Parse(value, culture);
             case ColumnType.Long:
-                return long.Parse(value);
+                return long.Parse(value, culture);
             default:
                 return value;
         }
-    }
-
-    // decimal comma is supported alongside the invariant decimal point
-    private static CultureInfo GetNumberCulture(string value)
-    {
-        return value.Contains(',') ? CultureInfo.GetCultureInfo("fi-FI") : CultureInfo.InvariantCulture;
     }
 }

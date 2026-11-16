@@ -39,30 +39,4 @@ public class Input
     [RequiredIf(nameof(SourceType), DataLocation.File)]
     [DisplayFormat(DataFormatString = "Text")]
     public string FlatFilePath { get; set; } = string.Empty;
-
-    /// <summary>
-    /// None: Flat file does not contain header row
-    /// FixedWidth: Header row is parsed using column specification
-    /// Delimited: Header row is parsed using delimiter char
-    /// </summary>
-    /// <example>HeaderRowType.FixedWidth</example>
-    [DefaultValue(HeaderRowType.FixedWidth)]
-    public HeaderRowType HeaderRow { get; set; }
-
-    /// <summary>
-    /// If header row uses delimiter set it here.
-    /// </summary>
-    /// <example>;</example>
-    [UIHint(nameof(HeaderRow), "", HeaderRowType.Delimited)]
-    [RequiredIf(nameof(HeaderRow), HeaderRowType.Delimited)]
-    [DisplayFormat(DataFormatString = "Text")]
-    public string HeaderDelimiter { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Column specifications for the data that is being converted.
-    /// </summary>
-    /// <example>[ Example, ColumnType.String, yyyy-MM-ddTHH:mm:ss, 5 ]</example>
-    [Required]
-    [MinLength(1, ErrorMessage = "ColumnSpecifications not given. Cannot be empty.")]
-    public ColumnSpecification[] ColumnSpecifications { get; set; } = Array.Empty<ColumnSpecification>();
 }

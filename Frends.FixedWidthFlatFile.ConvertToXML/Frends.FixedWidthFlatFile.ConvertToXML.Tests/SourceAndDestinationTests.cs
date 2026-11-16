@@ -11,7 +11,9 @@ internal class SourceAndDestinationTests
 {
     private string dir;
 
-    private static Input NewInput() => new()
+    private static Input NewInput() => new();
+
+    private static Options NewOptions() => new()
     {
         HeaderRow = HeaderRowType.None,
         ColumnSpecifications =
@@ -40,7 +42,7 @@ internal class SourceAndDestinationTests
         input.SourceType = DataLocation.File;
         input.FlatFilePath = path;
 
-        var result = FixedWidthFlatFile.ConvertToXML(input, new Options(), CancellationToken.None);
+        var result = FixedWidthFlatFile.ConvertToXML(input, NewOptions(), CancellationToken.None);
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Data, Does.Contain("<Name>Veijo</Name>"));
@@ -53,7 +55,9 @@ internal class SourceAndDestinationTests
         var path = Path.Combine(dir, "sub", "out.xml");
         var input = NewInput();
         input.FlatFileContent = "Veijo Frend";
-        var options = new Options { DestinationType = DataLocation.File, DestinationFilePath = path };
+        var options = NewOptions();
+        options.DestinationType = DataLocation.File;
+        options.DestinationFilePath = path;
 
         var result = FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None);
 
@@ -70,7 +74,10 @@ internal class SourceAndDestinationTests
         File.WriteAllText(path, "x");
         var input = NewInput();
         input.FlatFileContent = "Veijo Frend";
-        var options = new Options { DestinationType = DataLocation.File, DestinationFilePath = path, ThrowErrorOnFailure = false };
+        var options = NewOptions();
+        options.DestinationType = DataLocation.File;
+        options.DestinationFilePath = path;
+        options.ThrowErrorOnFailure = false;
 
         var result = FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None);
 
@@ -83,7 +90,8 @@ internal class SourceAndDestinationTests
     {
         var input = NewInput();
         input.SourceType = DataLocation.File;
-        var options = new Options { ThrowErrorOnFailure = false };
+        var options = NewOptions();
+        options.ThrowErrorOnFailure = false;
 
         var result = FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None);
 
@@ -99,6 +107,6 @@ internal class SourceAndDestinationTests
         input.FlatFilePath = Path.Combine(dir, "nope.txt");
 
         Assert.Throws<FileNotFoundException>((Action)(() =>
-            FixedWidthFlatFile.ConvertToXML(input, new Options(), CancellationToken.None)));
+            FixedWidthFlatFile.ConvertToXML(input, NewOptions(), CancellationToken.None)));
     }
 }

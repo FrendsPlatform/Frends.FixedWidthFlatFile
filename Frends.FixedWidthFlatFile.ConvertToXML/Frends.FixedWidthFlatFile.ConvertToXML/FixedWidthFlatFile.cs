@@ -21,8 +21,8 @@ public static class FixedWidthFlatFile
     /// Task converts fixed width flat file content to xml string.
     /// [Documentation](https://tasks.frends.com/tasks/frends-tasks/Frends.FixedWidthFlatFile.ConvertToXML)
     /// </summary>
-    /// <param name="input">Fixed width flat file content and its column specifications.</param>
-    /// <param name="options">Additional parameters.</param>
+    /// <param name="input">Fixed width flat file content or path.</param>
+    /// <param name="options">Flat file structure and additional parameters.</param>
     /// <param name="cancellationToken">CancellationToken given by Frends.</param>
     /// <returns>Object { bool Success, Error Error, string Data, string FilePath }</returns>
     public static Result ConvertToXML([PropertyTab] Input input, [PropertyTab] Options options, CancellationToken cancellationToken)
@@ -42,7 +42,7 @@ public static class FixedWidthFlatFile
             if (string.IsNullOrWhiteSpace(content))
                 throw new ArgumentException("Flat file content is empty.");
 
-            var parsedFile = FlatFileParser.Parse(content, input, options, cancellationToken);
+            var parsedFile = FlatFileParser.Parse(content, options, cancellationToken);
             var xml = WriteToXmlString(parsedFile, cancellationToken);
 
             if (destinationPath == null)

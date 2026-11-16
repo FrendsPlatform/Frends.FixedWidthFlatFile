@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -45,14 +46,10 @@ public class Tests
     [Test]
     public void ConvertToXML_FixedWidthHeader_ReturnsXmlWithRowsAndHeaderNames()
     {
-        var input = new Input
-        {
-            FlatFileContent = FixedWidthHeaderFile,
-            HeaderRow = HeaderRowType.FixedWidth,
-            ColumnSpecifications = UnnamedColumns(),
-        };
+        var input = new Input { FlatFileContent = FixedWidthHeaderFile };
+        var options = new Options { HeaderRow = HeaderRowType.FixedWidth, ColumnSpecifications = UnnamedColumns() };
 
-        var result = FixedWidthFlatFile.ConvertToXML(input, new Options(), CancellationToken.None);
+        var result = FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None);
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Error, Is.Null);
@@ -76,12 +73,15 @@ public class Tests
         var input = new Input
         {
             FlatFileContent = "Name;Street;StartDate\nVeijo   FrendsStr 20180527 \nHodor   HodorsStr 20180101 ",
+        };
+        var options = new Options
+        {
             HeaderRow = HeaderRowType.Delimited,
             HeaderDelimiter = ";",
             ColumnSpecifications = UnnamedColumns(),
         };
 
-        var result = FixedWidthFlatFile.ConvertToXML(input, new Options(), CancellationToken.None);
+        var result = FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None);
 
         var rows = ReadRows(result.Data);
         Assert.That(rows, Has.Count.EqualTo(2));
@@ -92,14 +92,10 @@ public class Tests
     [Test]
     public void ConvertToXML_NoHeader_UsesColumnSpecificationNames()
     {
-        var input = new Input
-        {
-            FlatFileContent = "Veijo   FrendsStr 20180527 \nHodor   HodorsStr 20180101 ",
-            HeaderRow = HeaderRowType.None,
-            ColumnSpecifications = NamedColumns(),
-        };
+        var input = new Input { FlatFileContent = "Veijo   FrendsStr 20180527 \nHodor   HodorsStr 20180101 " };
+        var options = new Options { HeaderRow = HeaderRowType.None, ColumnSpecifications = NamedColumns() };
 
-        var result = FixedWidthFlatFile.ConvertToXML(input, new Options(), CancellationToken.None);
+        var result = FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None);
 
         var rows = ReadRows(result.Data);
         Assert.That(rows, Has.Count.EqualTo(2));
@@ -113,14 +109,10 @@ public class Tests
         var columns = UnnamedColumns();
         columns[0].Name = "Person";
 
-        var input = new Input
-        {
-            FlatFileContent = FixedWidthHeaderFile,
-            HeaderRow = HeaderRowType.FixedWidth,
-            ColumnSpecifications = columns,
-        };
+        var input = new Input { FlatFileContent = FixedWidthHeaderFile };
+        var options = new Options { HeaderRow = HeaderRowType.FixedWidth, ColumnSpecifications = columns };
 
-        var result = FixedWidthFlatFile.ConvertToXML(input, new Options(), CancellationToken.None);
+        var result = FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None);
 
         Assert.That(ReadRows(result.Data)[0].Keys, Is.EqualTo(new[] { "Person", "Street", "StartDate" }));
     }
@@ -128,14 +120,10 @@ public class Tests
     [Test]
     public void ConvertToXML_GeneratesFieldNamesForUnnamedColumns()
     {
-        var input = new Input
-        {
-            FlatFileContent = "Veijo   FrendsStr 20180527 ",
-            HeaderRow = HeaderRowType.None,
-            ColumnSpecifications = UnnamedColumns(),
-        };
+        var input = new Input { FlatFileContent = "Veijo   FrendsStr 20180527 " };
+        var options = new Options { HeaderRow = HeaderRowType.None, ColumnSpecifications = UnnamedColumns() };
 
-        var result = FixedWidthFlatFile.ConvertToXML(input, new Options(), CancellationToken.None);
+        var result = FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None);
 
         var row = ReadRows(result.Data).Single();
         Assert.That(row.Keys, Is.EqualTo(new[] { "Field_1", "Field_2", "Field_3" }));
@@ -145,9 +133,9 @@ public class Tests
     [Test]
     public void ConvertToXML_RenamesDuplicateColumnNames()
     {
-        var input = new Input
+        var input = new Input { FlatFileContent = "aabbcc" };
+        var options = new Options
         {
-            FlatFileContent = "aabbcc",
             HeaderRow = HeaderRowType.None,
             ColumnSpecifications = new[]
             {
@@ -157,7 +145,7 @@ public class Tests
             },
         };
 
-        var result = FixedWidthFlatFile.ConvertToXML(input, new Options(), CancellationToken.None);
+        var result = FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None);
 
         var row = ReadRows(result.Data).Single();
         Assert.That(row.Keys, Is.EqualTo(new[] { "Col", "Col_1", "Col_2" }));
@@ -167,14 +155,10 @@ public class Tests
     [Test]
     public void ConvertToXML_EmptyValuesAreWrittenAsEmptyElements()
     {
-        var input = new Input
-        {
-            FlatFileContent = "Veijo   " + new string(' ', 10) + "20180527 ",
-            HeaderRow = HeaderRowType.None,
-            ColumnSpecifications = NamedColumns(),
-        };
+        var input = new Input { FlatFileContent = "Veijo   " + new string(' ', 10) + "20180527 " };
+        var options = new Options { HeaderRow = HeaderRowType.None, ColumnSpecifications = NamedColumns() };
 
-        var result = FixedWidthFlatFile.ConvertToXML(input, new Options(), CancellationToken.None);
+        var result = FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None);
 
         var row = ReadRows(result.Data).Single();
         Assert.That(row["Street"], Is.Empty);
@@ -184,42 +168,36 @@ public class Tests
     [Test]
     public void ConvertToXML_EmptyValueInUnnamedColumnUsesGeneratedName()
     {
-        var input = new Input
-        {
-            FlatFileContent = "Veijo   " + new string(' ', 10) + "20180527 ",
-            HeaderRow = HeaderRowType.None,
-            ColumnSpecifications = UnnamedColumns(),
-        };
+        var input = new Input { FlatFileContent = "Veijo   " + new string(' ', 10) + "20180527 " };
+        var options = new Options { HeaderRow = HeaderRowType.None, ColumnSpecifications = UnnamedColumns() };
 
-        var result = FixedWidthFlatFile.ConvertToXML(input, new Options(), CancellationToken.None);
+        var result = FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None);
 
         var row = ReadRows(result.Data).Single();
         Assert.That(row.Keys, Is.EqualTo(new[] { "Field_1", "Field_2", "Field_3" }));
         Assert.That(row["Field_2"], Is.Empty);
     }
 
+    private static ColumnSpecification[] TypedColumns() => new[]
+    {
+        new ColumnSpecification { Type = ColumnType.Boolean, Length = 4, Name = "Boolean" },
+        new ColumnSpecification { Type = ColumnType.Char, Length = 1, Name = "Char" },
+        new ColumnSpecification { Type = ColumnType.Double, Length = 3, Name = "Double" },
+        new ColumnSpecification { Type = ColumnType.Long, Length = 10, Name = "Long" },
+        new ColumnSpecification { Type = ColumnType.DateTime, DateTimeFormat = "yyyyMMdd", Length = 8, Name = "DateTime" },
+        new ColumnSpecification { Type = ColumnType.Int, Length = 1, Name = "Int" },
+        new ColumnSpecification { Type = ColumnType.Decimal, Length = 5, Name = "Decimal" },
+        new ColumnSpecification { Type = ColumnType.Double, Length = 4, Name = "InvariantDouble" },
+    };
+
     [Test]
     [SetCulture("pl-PL")]
-    public void ConvertToXML_FormatsTypedValuesIndependentOfCurrentCulture()
+    public void ConvertToXML_EmptyCulture_UsesInvariantCultureIndependentOfCurrentCulture()
     {
-        var input = new Input
-        {
-            FlatFileContent = "truet1,5123456789020180424912,2512.5",
-            HeaderRow = HeaderRowType.None,
-            ColumnSpecifications = new[]
-            {
-                new ColumnSpecification { Type = ColumnType.Boolean, Length = 4, Name = "Boolean" },
-                new ColumnSpecification { Type = ColumnType.Char, Length = 1, Name = "Char" },
-                new ColumnSpecification { Type = ColumnType.Double, Length = 3, Name = "Double" },
-                new ColumnSpecification { Type = ColumnType.Long, Length = 10, Name = "Long" },
-                new ColumnSpecification { Type = ColumnType.DateTime, DateTimeFormat = "yyyyMMdd", Length = 8, Name = "DateTime" },
-                new ColumnSpecification { Type = ColumnType.Int, Length = 1, Name = "Int" },
-                new ColumnSpecification { Type = ColumnType.Decimal, Length = 5, Name = "Decimal" },
-                new ColumnSpecification { Type = ColumnType.Double, Length = 4, Name = "InvariantDouble" },
-            },
-        };
+        var input = new Input { FlatFileContent = "truet1.5123456789020180424912.2512.5" };
+        var options = new Options { HeaderRow = HeaderRowType.None, ColumnSpecifications = TypedColumns() };
 
-        var result = FixedWidthFlatFile.ConvertToXML(input, new Options(), CancellationToken.None);
+        var result = FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None);
 
         var row = ReadRows(result.Data).Single();
         Assert.That(row["Boolean"], Is.EqualTo("True"));
@@ -233,15 +211,54 @@ public class Tests
     }
 
     [Test]
+    public void ConvertToXML_CultureGiven_ParsesValuesWithThatCulture()
+    {
+        var input = new Input { FlatFileContent = "truet1,5123456789020180424912,2512,5" };
+        var options = new Options
+        {
+            HeaderRow = HeaderRowType.None,
+            ColumnSpecifications = TypedColumns(),
+            Culture = "fi-FI",
+        };
+
+        var result = FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None);
+
+        var row = ReadRows(result.Data).Single();
+        Assert.That(row["Double"], Is.EqualTo("1.5"));
+        Assert.That(row["Decimal"], Is.EqualTo("12.25"));
+        Assert.That(row["InvariantDouble"], Is.EqualTo("12.5"));
+    }
+
+    [Test]
+    public void ConvertToXML_UnknownCulture_ReturnsFailedResultWhenNotThrowing()
+    {
+        var input = new Input { FlatFileContent = "truet1.5123456789020180424912.2512.5" };
+        var options = new Options
+        {
+            HeaderRow = HeaderRowType.None,
+            ColumnSpecifications = TypedColumns(),
+            Culture = "not-a-culture-xx-yy-zz",
+            ThrowErrorOnFailure = false,
+        };
+
+        var result = FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error.AdditionalInfo, Is.InstanceOf<CultureNotFoundException>());
+    }
+
+    [Test]
     public void ConvertToXML_SkipRows_SkipsFromTopAndBottom()
     {
-        var input = new Input
+        var input = new Input { FlatFileContent = "a1\na2\na3\na4\na5" };
+        var options = new Options
         {
-            FlatFileContent = "a1\na2\na3\na4\na5",
             HeaderRow = HeaderRowType.None,
             ColumnSpecifications = new[] { new ColumnSpecification { Name = "Value", Length = 2 } },
+            SkipRows = true,
+            SkipRowsFromTop = 1,
+            SkipRowsFromBottom = 2,
         };
-        var options = new Options { SkipRows = true, SkipRowsFromTop = 1, SkipRowsFromBottom = 2 };
 
         var result = FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None);
 
@@ -251,13 +268,15 @@ public class Tests
     [Test]
     public void ConvertToXML_SkipRowsDisabled_IgnoresSkipCounts()
     {
-        var input = new Input
+        var input = new Input { FlatFileContent = FixedWidthHeaderFile };
+        var options = new Options
         {
-            FlatFileContent = FixedWidthHeaderFile,
             HeaderRow = HeaderRowType.FixedWidth,
             ColumnSpecifications = UnnamedColumns(),
+            SkipRows = false,
+            SkipRowsFromTop = 5,
+            SkipRowsFromBottom = 5,
         };
-        var options = new Options { SkipRows = false, SkipRowsFromTop = 5, SkipRowsFromBottom = 5 };
 
         var result = FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None);
 
@@ -267,13 +286,15 @@ public class Tests
     [Test]
     public void ConvertToXML_SkippingMoreRowsThanExist_ReturnsEmptyRows()
     {
-        var input = new Input
+        var input = new Input { FlatFileContent = FixedWidthHeaderFile };
+        var options = new Options
         {
-            FlatFileContent = FixedWidthHeaderFile,
             HeaderRow = HeaderRowType.FixedWidth,
             ColumnSpecifications = UnnamedColumns(),
+            SkipRows = true,
+            SkipRowsFromTop = 1,
+            SkipRowsFromBottom = 5,
         };
-        var options = new Options { SkipRows = true, SkipRowsFromTop = 1, SkipRowsFromBottom = 5 };
 
         var result = FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None);
 
@@ -284,14 +305,14 @@ public class Tests
     [Test]
     public void ConvertToXML_IgnoresEmptyLines()
     {
-        var input = new Input
+        var input = new Input { FlatFileContent = "\naa\n\n   \nbb\n" };
+        var options = new Options
         {
-            FlatFileContent = "\naa\n\n   \nbb\n",
             HeaderRow = HeaderRowType.None,
             ColumnSpecifications = new[] { new ColumnSpecification { Name = "Value", Length = 2 } },
         };
 
-        var result = FixedWidthFlatFile.ConvertToXML(input, new Options(), CancellationToken.None);
+        var result = FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None);
 
         Assert.That(ReadRows(result.Data).Select(r => r["Value"]), Is.EqualTo(new[] { "aa", "bb" }));
     }
@@ -299,24 +320,20 @@ public class Tests
     [Test]
     public void ConvertToXML_DoesNotModifyInputColumnSpecifications()
     {
-        var input = new Input
-        {
-            FlatFileContent = FixedWidthHeaderFile,
-            HeaderRow = HeaderRowType.FixedWidth,
-            ColumnSpecifications = UnnamedColumns(),
-        };
+        var input = new Input { FlatFileContent = FixedWidthHeaderFile };
+        var options = new Options { HeaderRow = HeaderRowType.FixedWidth, ColumnSpecifications = UnnamedColumns() };
 
-        FixedWidthFlatFile.ConvertToXML(input, new Options(), CancellationToken.None);
+        FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None);
 
-        Assert.That(input.ColumnSpecifications.Select(c => c.Name), Is.All.Empty);
+        Assert.That(options.ColumnSpecifications.Select(c => c.Name), Is.All.Empty);
     }
 
     [Test]
     public void ConvertToXML_HeaderWithMoreColumnsThanSpecifications_IgnoresExtraHeaders()
     {
-        var input = new Input
+        var input = new Input { FlatFileContent = "A;B;C\naabb" };
+        var options = new Options
         {
-            FlatFileContent = "A;B;C\naabb",
             HeaderRow = HeaderRowType.Delimited,
             HeaderDelimiter = ";",
             ColumnSpecifications = new[]
@@ -326,7 +343,7 @@ public class Tests
             },
         };
 
-        var result = FixedWidthFlatFile.ConvertToXML(input, new Options(), CancellationToken.None);
+        var result = FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None);
 
         Assert.That(ReadRows(result.Data).Single().Keys, Is.EqualTo(new[] { "A", "B" }));
     }
@@ -334,15 +351,11 @@ public class Tests
     [Test]
     public void ConvertToXML_RowNotMatchingColumnSpecifications_ThrowsInvalidDataException()
     {
-        var input = new Input
-        {
-            FlatFileContent = "Veijo",
-            HeaderRow = HeaderRowType.None,
-            ColumnSpecifications = NamedColumns(),
-        };
+        var input = new Input { FlatFileContent = "Veijo" };
+        var options = new Options { HeaderRow = HeaderRowType.None, ColumnSpecifications = NamedColumns() };
 
         var ex = Assert.Throws<InvalidDataException>((Action)(() =>
-            FixedWidthFlatFile.ConvertToXML(input, new Options(), CancellationToken.None)));
+            FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None)));
 
         Assert.That(ex.Message, Is.EqualTo("Data row did not match column specifications."));
     }
@@ -350,14 +363,15 @@ public class Tests
     [Test]
     public void ConvertToXML_InvalidValueForColumnType_ReturnsFailedResultWhenNotThrowing()
     {
-        var input = new Input
+        var input = new Input { FlatFileContent = "abc" };
+        var options = new Options
         {
-            FlatFileContent = "abc",
             HeaderRow = HeaderRowType.None,
             ColumnSpecifications = new[] { new ColumnSpecification { Name = "Number", Length = 3, Type = ColumnType.Int } },
+            ThrowErrorOnFailure = false,
         };
 
-        var result = FixedWidthFlatFile.ConvertToXML(input, new Options { ThrowErrorOnFailure = false }, CancellationToken.None);
+        var result = FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Data, Is.Null);
@@ -367,9 +381,10 @@ public class Tests
     [Test]
     public void ConvertToXML_EmptyFlatFileContent_ReturnsErrorMessage()
     {
-        var input = new Input { FlatFileContent = "  \n ", ColumnSpecifications = NamedColumns() };
+        var input = new Input { FlatFileContent = "  \n " };
+        var options = new Options { ColumnSpecifications = NamedColumns(), ThrowErrorOnFailure = false };
 
-        var result = FixedWidthFlatFile.ConvertToXML(input, new Options { ThrowErrorOnFailure = false }, CancellationToken.None);
+        var result = FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Error.Message, Does.Contain("FlatFileContent is required."));
@@ -378,9 +393,10 @@ public class Tests
     [Test]
     public void ConvertToXML_NoColumnSpecifications_ReturnsErrorMessage()
     {
-        var input = new Input { FlatFileContent = "Veijo", HeaderRow = HeaderRowType.None };
+        var input = new Input { FlatFileContent = "Veijo" };
+        var options = new Options { HeaderRow = HeaderRowType.None, ThrowErrorOnFailure = false };
 
-        var result = FixedWidthFlatFile.ConvertToXML(input, new Options { ThrowErrorOnFailure = false }, CancellationToken.None);
+        var result = FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Error.Message, Does.Contain("ColumnSpecifications not given. Cannot be empty."));
@@ -392,14 +408,15 @@ public class Tests
         using var cts = new CancellationTokenSource();
         cts.Cancel();
 
-        var input = new Input
+        var input = new Input { FlatFileContent = FixedWidthHeaderFile };
+        var options = new Options
         {
-            FlatFileContent = FixedWidthHeaderFile,
             HeaderRow = HeaderRowType.FixedWidth,
             ColumnSpecifications = UnnamedColumns(),
+            ThrowErrorOnFailure = false,
         };
 
         Assert.Throws<OperationCanceledException>((Action)(() =>
-            FixedWidthFlatFile.ConvertToXML(input, new Options { ThrowErrorOnFailure = false }, cts.Token)));
+            FixedWidthFlatFile.ConvertToXML(input, options, cts.Token)));
     }
 }
