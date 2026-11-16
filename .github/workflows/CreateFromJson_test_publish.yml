@@ -13,7 +13,7 @@ on:
 
 jobs:
   work_push:
-    uses: FrendsPlatform/FrendsTasks/.github/workflows/official_task_pipeline.yml@workflow-fix
+    uses: FrendsPlatform/FrendsTasks/.github/workflows/official_task_pipeline.yml@main
     with:
       workflow_mode: work
       os: all
