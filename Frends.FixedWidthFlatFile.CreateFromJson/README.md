@@ -2,8 +2,7 @@
 
 Converts JSON data to a fixed-width flat file.
 
-The input must be a non-empty JSON array of objects. Configure columns in output order with a property name, type, and field width. Values are left-aligned and padded with spaces; values wider than their configured field fail rather than being truncated. Missing or null properties become blank fields, and properties not listed in the column definitions are ignored. An optional header row uses the column names.
-
+The input must be a non-empty JSON array of objects. The output is a fixed-width flat file.
 Example JSON:
 
 ```json

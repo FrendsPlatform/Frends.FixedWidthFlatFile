@@ -13,9 +13,16 @@ public class Result
 
     /// <summary>
     /// Fixed-width flat file content. Records are separated by the platform newline.
+    /// Null when the destination type is File.
     /// </summary>
     /// <example>Veijo   20180527</example>
     public string FlatFileContent { get; set; }
+
+    /// <summary>
+    /// Full path of the created file. Null when the destination type is String.
+    /// </summary>
+    /// <example>C:\output\data.txt</example>
+    public string FlatFilePath { get; set; }
 
     /// <summary>
     /// Error details when the task fails; null otherwise.

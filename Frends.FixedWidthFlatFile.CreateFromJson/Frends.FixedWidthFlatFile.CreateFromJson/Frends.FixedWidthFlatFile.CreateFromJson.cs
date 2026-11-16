@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using Frends.FixedWidthFlatFile.CreateFromJson.Definitions;
 using Frends.FixedWidthFlatFile.CreateFromJson.Helpers;
@@ -40,7 +41,15 @@ public static class FixedWidthFlatFile
                 : CultureInfo.GetCultureInfo(input.Culture);
             ValidateColumns(input.ColumnSpecifications, cancellationToken);
 
-            using var jsonReader = new JsonTextReader(new StringReader(input.Json))
+            var destinationPath =             options.DestinationType == DataLocation.File
+                            ? ResolveDestinationPath(options.DestinationFilePath)
+                : null;
+
+            var jsonText = input.SourceType == DataLocation.File
+                ? ReadSourceFile(input.JsonFilePath)
+                : input.Json;
+
+            using var jsonReader = new JsonTextReader(new StringReader(jsonText))
             {
                 DateParseHandling = DateParseHandling.None,
             };
@@ -65,10 +74,26 @@ public static class FixedWidthFlatFile
                 records.Add(FormatRecord(jsonObject, input.ColumnSpecifications, culture, cancellationToken));
             }
 
+            var content = string.Join(Environment.NewLine, records);
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (destinationPath != null)
+            {
+                WriteNewFile(destinationPath, content);
+                return new Result
+                {
+                    Success = true,
+                    FlatFileContent = null,
+                    FlatFilePath = destinationPath,
+                    Error = null,
+                };
+            }
+
             return new Result
             {
                 Success = true,
-                FlatFileContent = string.Join(Environment.NewLine, records),
+                FlatFileContent = content,
+                FlatFilePath = null,
                 Error = null,
             };
         }
@@ -76,6 +101,52 @@ public static class FixedWidthFlatFile
         {
             return ex.Handle(options);
         }
+    }
+
+    private static string ReadSourceFile(string path)
+    {
+        if (!File.Exists(path))
+            throw new FileNotFoundException($"JSON source file '{path}' was not found.", path);
+        return File.ReadAllText(path);
+    }
+
+    private static string ResolveDestinationPath(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path) || path.IndexOfAny(Path.GetInvalidPathChars()) >= 0)
+            throw new ArgumentException("Destination file path is not a valid path.");
+        if (!Path.IsPathRooted(path))
+            throw new ArgumentException("Destination file path must be an absolute path.");
+        if (path.EndsWith(Path.DirectorySeparatorChar) || path.EndsWith(Path.AltDirectorySeparatorChar))
+            throw new ArgumentException("Destination file path must point to a file, not a directory.");
+
+        string fullPath;
+        try
+        {
+            fullPath = Path.GetFullPath(path);
+        }
+        catch (Exception ex) when (ex is ArgumentException or NotSupportedException or PathTooLongException)
+        {
+            throw new ArgumentException($"Destination file path is not a valid path: {ex.Message}");
+        }
+
+        if (string.IsNullOrEmpty(Path.GetFileName(fullPath)))
+            throw new ArgumentException("Destination file path must include a file name.");
+        if (Directory.Exists(fullPath))
+            throw new IOException($"Destination path '{fullPath}' is an existing directory.");
+        if (File.Exists(fullPath))
+            throw new IOException($"Destination file '{fullPath}' already exists and will not be overwritten.");
+
+        return fullPath;
+    }
+
+    private static void WriteNewFile(string fullPath, string content)
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
+
+        // CreateNew guarantees an existing file is never overwritten, even if it appeared after validation.
+        using var stream = new FileStream(fullPath, FileMode.CreateNew, FileAccess.Write, FileShare.None);
+        using var writer = new StreamWriter(stream, new UTF8Encoding(false));
+        writer.Write(content);
     }
 
     private static void ValidateColumns(IEnumerable<ColumnSpecification> columns, CancellationToken cancellationToken)
