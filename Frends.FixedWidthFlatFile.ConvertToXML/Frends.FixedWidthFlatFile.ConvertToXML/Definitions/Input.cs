@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+using System;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace Frends.FixedWidthFlatFile.ConvertToXML.Definitions;
-#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 
 /// <summary>
 /// Input parameters.
@@ -9,24 +10,37 @@ namespace Frends.FixedWidthFlatFile.ConvertToXML.Definitions;
 public class Input
 {
     /// <summary>
-    /// Fixed width flat file content
+    /// Fixed width flat file content in string format.
     /// </summary>
     /// <example>
-    /// [
-    ///     {
-    ///         "Name": "Veijo",
-    ///         "Street": "FrendsStr",
-    ///         "StartDate": "2018-05-27T00:00:00"
-    ///     },
-    ///     {
-    ///         "Name": "Hodor",
-    ///         "Street": "HodorsStr",
-    ///         "StartDate": "2018-01-01T00:00:00"
-    ///     }
-    /// ]
-    /// </example>
-    public List<Dictionary<string, dynamic?>> FileContent { get; set; } = new List<Dictionary<string, dynamic?>>();
+    /// <code>
+    /// Name    Street    StartDate
+    /// Veijo   FrendsStr 20180527
+    /// Hodor   HodorsStr 20180101
+    /// </code> </example>
+    [DisplayFormat(DataFormatString = "Text")]
+    public string FlatFileContent { get; set; } = string.Empty;
+
+    /// <summary>
+    /// None: Flat file does not contain header row
+    /// FixedWidth: Header row is parsed using column specification
+    /// Delimited: Header row is parsed using delimiter char
+    /// </summary>
+    /// <example>HeaderRowType.FixedWidth</example>
+    [DefaultValue(HeaderRowType.FixedWidth)]
+    public HeaderRowType HeaderRow { get; set; }
+
+    /// <summary>
+    /// If header row uses delimiter set it here.
+    /// </summary>
+    /// <example>;</example>
+    [UIHint(nameof(HeaderRow), "", HeaderRowType.Delimited)]
+    [DisplayFormat(DataFormatString = "Text")]
+    public string HeaderDelimiter { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Column specifications for the data that is being converted.
+    /// </summary>
+    /// <example>[ Example, ColumnType.String, yyyy-MM-ddTHH:mm:ss, 5 ]</example>
+    public ColumnSpecification[] ColumnSpecifications { get; set; } = Array.Empty<ColumnSpecification>();
 }
-
-#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
-

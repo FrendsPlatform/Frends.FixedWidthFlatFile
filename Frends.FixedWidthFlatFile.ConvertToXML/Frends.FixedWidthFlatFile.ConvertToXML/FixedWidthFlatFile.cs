@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -18,10 +18,10 @@ namespace Frends.FixedWidthFlatFile.ConvertToXML;
 public static class FixedWidthFlatFile
 {
     /// <summary>
-    /// Task converts List&lt;dictionary&lt;string, dynamic&gt;&gt; typed object to xml string. Mainly used to convert Frends.FixedWidthFlatFile.Parse result object to xml string.
+    /// Task converts fixed width flat file content to xml string.
     /// [Documentation](https://tasks.frends.com/tasks/frends-tasks/Frends.FixedWidthFlatFile.ConvertToXML)
     /// </summary>
-    /// <param name="input">What value to convert.</param>
+    /// <param name="input">Fixed width flat file content and its column specifications.</param>
     /// <param name="options">Additional parameters.</param>
     /// <param name="cancellationToken">CancellationToken given by Frends.</param>
     /// <returns>Object { bool Success, Error Error, string Data }</returns>
@@ -29,13 +29,15 @@ public static class FixedWidthFlatFile
     {
         try
         {
-            if (input.FileContent == null || input.FileContent.Count <= 0)
-                throw new ArgumentNullException(nameof(input), "FileContent not given. Cannot be empty.");
+            if (string.IsNullOrWhiteSpace(input.FlatFileContent))
+                throw new ArgumentException("FlatFileContent not given. Cannot be empty.");
 
-            var xml = WriteToXmlString(input.FileContent, cancellationToken);
-            if (xml == null) throw new Exception("XML parse failed.");
+            if (input.ColumnSpecifications == null || input.ColumnSpecifications.Length == 0)
+                throw new ArgumentException("ColumnSpecifications not given. Cannot be empty.");
 
-            return new Result(true, xml);
+            var parsedFile = FlatFileParser.Parse(input, options, cancellationToken);
+
+            return new Result(true, WriteToXmlString(parsedFile, cancellationToken));
         }
         catch (Exception ex)
         {
@@ -43,54 +45,47 @@ public static class FixedWidthFlatFile
         }
     }
 
-    private static string WriteToXmlString(List<Dictionary<string, dynamic>> data, CancellationToken cancellationToken)
+    private static string WriteToXmlString(ParsedFlatFile data, CancellationToken cancellationToken)
     {
-        try
+        using (var ms = new MemoryStream())
         {
-            using (var ms = new MemoryStream())
+            using (var writer = new XmlTextWriter(ms, new UTF8Encoding(false)) { Formatting = Formatting.Indented })
             {
-                using (var writer = new XmlTextWriter(ms, new UTF8Encoding(false)) { Formatting = Formatting.Indented })
+                writer.WriteStartDocument(); // start doc
+                writer.WriteStartElement("Root");
+                writer.WriteStartElement("Rows");
+
+                foreach (var row in data.Rows)
                 {
-                    writer.WriteStartDocument(); // start doc
-                    writer.WriteStartElement("Root");
-                    writer.WriteStartElement("Rows");
+                    cancellationToken.ThrowIfCancellationRequested();
 
-                    foreach (var row in data)
+                    writer.WriteStartElement("Row");
+
+                    for (var i = 0; i < data.ColumnNames.Length; i++)
                     {
-                        writer.WriteStartElement("Row");
-
-                        foreach (var key in row.Keys)
-                        {
-                            cancellationToken.ThrowIfCancellationRequested();
-
-                            // value null check
-                            if (row[key] != null)
-                            {
-                                if (row[key].GetType() == typeof(DateTime))
-                                    writer.WriteElementString(key, row[key].ToString("s"));
-                                else
-                                    writer.WriteElementString(key, row[key].ToString());
-                            }
-                            else // write empty string for null values
-                            {
-                                writer.WriteElementString(key, string.Empty);
-                            }
-                        }
-
-                        writer.WriteEndElement(); // end Row
+                        // write empty string for null values
+                        writer.WriteElementString(data.ColumnNames[i], ValueToString(row[i]));
                     }
 
-                    writer.WriteEndElement(); // end Rows
-                    writer.WriteEndElement(); // end Root
-                    writer.WriteEndDocument(); // end doc
+                    writer.WriteEndElement(); // end Row
                 }
 
-                return Encoding.UTF8.GetString(ms.ToArray());
+                writer.WriteEndElement(); // end Rows
+                writer.WriteEndElement(); // end Root
+                writer.WriteEndDocument(); // end doc
             }
+
+            return Encoding.UTF8.GetString(ms.ToArray());
         }
-        catch (Exception ex)
+    }
+
+    private static string ValueToString(object value)
+    {
+        return value switch
         {
-            throw new Exception(ex.Message);
-        }
+            null => string.Empty,
+            DateTime dateTime => dateTime.ToString("s", CultureInfo.InvariantCulture),
+            _ => Convert.ToString(value, CultureInfo.InvariantCulture),
+        };
     }
 }
