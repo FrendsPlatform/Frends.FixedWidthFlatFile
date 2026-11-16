@@ -90,6 +90,58 @@ public class Tests
     }
 
     [Test]
+    public void ConvertToXML_TabDelimitedHeader_UsesHeaderValuesAsNames()
+    {
+        var input = new Input { FlatFileContent = "Name\tStreet\tStartDate\nVeijo   FrendsStr 20180527 " };
+        var options = new Options
+        {
+            HeaderRow = HeaderRowType.Delimited,
+            HeaderDelimiter = "\t",
+            ColumnSpecifications = UnnamedColumns(),
+        };
+
+        var result = FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(ReadRows(result.Data)[0].Keys, Is.EqualTo(new[] { "Name", "Street", "StartDate" }));
+    }
+
+    [Test]
+    public void ConvertToXML_EmptyHeaderDelimiter_Fails()
+    {
+        var input = new Input { FlatFileContent = "Name;Street;StartDate\nVeijo   FrendsStr 20180527 " };
+        var options = new Options
+        {
+            HeaderRow = HeaderRowType.Delimited,
+            HeaderDelimiter = " "[..0],
+            ColumnSpecifications = UnnamedColumns(),
+            ThrowErrorOnFailure = false,
+        };
+
+        var result = FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None);
+
+        Assert.That(result.Success, Is.False);
+    }
+
+    [TestCase("First Name")]
+    [TestCase("1stName")]
+    public void ConvertToXML_InvalidXmlElementName_ReturnsFailedResult(string header)
+    {
+        var input = new Input { FlatFileContent = $"{header.PadRight(8)}\nVeijo   " };
+        var options = new Options
+        {
+            HeaderRow = HeaderRowType.FixedWidth,
+            ColumnSpecifications = new[] { new ColumnSpecification { Length = 8, Type = ColumnType.String } },
+            ThrowErrorOnFailure = false,
+        };
+
+        var result = FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error.Message, Does.Contain("valid XML element name"));
+    }
+
+    [Test]
     public void ConvertToXML_NoHeader_UsesColumnSpecificationNames()
     {
         var input = new Input { FlatFileContent = "Veijo   FrendsStr 20180527 \nHodor   HodorsStr 20180101 " };

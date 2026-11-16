@@ -68,8 +68,8 @@ public static class FixedWidthFlatFile
     {
         if (string.IsNullOrWhiteSpace(path) || path.IndexOfAny(Path.GetInvalidPathChars()) >= 0)
             throw new ArgumentException("Destination file path is not a valid path.");
-        if (!Path.IsPathRooted(path))
-            throw new ArgumentException("Destination file path must be an absolute path.");
+        if (!Path.IsPathFullyQualified(path))
+            throw new ArgumentException("Destination file path must be a fully qualified absolute path.");
         if (path.EndsWith(Path.DirectorySeparatorChar) || path.EndsWith(Path.AltDirectorySeparatorChar))
             throw new ArgumentException("Destination file path must point to a file, not a directory.");
 
@@ -83,12 +83,28 @@ public static class FixedWidthFlatFile
 
     private static void WriteNewFile(string fullPath, string content)
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
+        var directory = Path.GetDirectoryName(fullPath)!;
+        Directory.CreateDirectory(directory);
 
-        // CreateNew guarantees an existing file is never overwritten, even if it appeared after validation.
-        using var stream = new FileStream(fullPath, FileMode.CreateNew, FileAccess.Write, FileShare.None);
-        using var writer = new StreamWriter(stream, new UTF8Encoding(false));
-        writer.Write(content);
+        // Write to a temp file first so a failed write never leaves a partial file at the final path.
+        var tempPath = Path.Combine(directory, $".{Guid.NewGuid():N}.tmp");
+        try
+        {
+            using (var stream = new FileStream(tempPath, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            using (var writer = new StreamWriter(stream, new UTF8Encoding(false)))
+            {
+                writer.Write(content);
+            }
+
+            // Move without overwrite throws if the file appeared after validation.
+            File.Move(tempPath, fullPath, false);
+        }
+        catch
+        {
+            if (File.Exists(tempPath))
+                File.Delete(tempPath);
+            throw;
+        }
     }
 
     private static string WriteToXmlString(ParsedFlatFile data, CancellationToken cancellationToken)

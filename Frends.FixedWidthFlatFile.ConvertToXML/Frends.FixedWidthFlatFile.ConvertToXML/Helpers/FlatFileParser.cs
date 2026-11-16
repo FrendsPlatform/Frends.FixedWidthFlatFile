@@ -125,6 +125,17 @@ internal static class FlatFileParser
                 renameIndex++;
             }
 
+            try
+            {
+                System.Xml.XmlConvert.VerifyNCName(uniqueName);
+            }
+            catch (System.Xml.XmlException ex)
+            {
+                throw new InvalidDataException(
+                    $"Column name '{uniqueName}' (column {i + 1}) is not a valid XML element name. Set a valid name in the column specification.",
+                    ex);
+            }
+
             names[i] = uniqueName;
         }
 

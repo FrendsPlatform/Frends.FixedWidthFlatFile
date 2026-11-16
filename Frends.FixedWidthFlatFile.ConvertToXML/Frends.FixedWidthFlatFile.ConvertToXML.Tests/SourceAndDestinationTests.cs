@@ -85,6 +85,44 @@ internal class SourceAndDestinationTests
         Assert.That(File.ReadAllText(path), Is.EqualTo("x"));
     }
 
+    [TestCase("C:out.xml")]
+    [TestCase("\\out.xml")]
+    [TestCase("out.xml")]
+    public void Non_Fully_Qualified_Destination_Is_Rejected(string path)
+    {
+        if (!OperatingSystem.IsWindows() && path != "out.xml")
+            Assert.Ignore("Windows-only path forms.");
+
+        var input = NewInput();
+        input.FlatFileContent = "Veijo Frend";
+        var options = NewOptions();
+        options.DestinationType = DataLocation.File;
+        options.DestinationFilePath = path;
+        options.ThrowErrorOnFailure = false;
+
+        var result = FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error.Message, Does.Contain("fully qualified"));
+    }
+
+    [Test]
+    public void Successful_Write_Leaves_Only_Destination_File()
+    {
+        var path = Path.Combine(dir, "out.xml");
+        var input = NewInput();
+        input.FlatFileContent = "Veijo Frend";
+        var options = NewOptions();
+        options.DestinationType = DataLocation.File;
+        options.DestinationFilePath = path;
+        options.ThrowErrorOnFailure = false;
+
+        var result = FixedWidthFlatFile.ConvertToXML(input, options, CancellationToken.None);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(Directory.GetFiles(dir), Is.EqualTo(new[] { path }));
+    }
+
     [Test]
     public void Missing_Source_File_Path_Fails_Validation()
     {

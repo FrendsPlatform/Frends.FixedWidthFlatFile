@@ -23,7 +23,7 @@ public class Options
     /// </summary>
     /// <example>;</example>
     [UIHint(nameof(HeaderRow), "", HeaderRowType.Delimited)]
-    [RequiredIf(nameof(HeaderRow), HeaderRowType.Delimited)]
+    [RequiredIf(nameof(HeaderRow), HeaderRowType.Delimited, AllowSingleWhitespace = true)]
     [DisplayFormat(DataFormatString = "Text")]
     public string HeaderDelimiter { get; set; } = string.Empty;
 
