@@ -41,18 +41,16 @@ public static class FixedWidthFlatFile
                 : CultureInfo.GetCultureInfo(input.Culture);
             ValidateColumns(input.ColumnSpecifications, cancellationToken);
 
-            var destinationPath =             options.DestinationType == DataLocation.File
-                            ? ResolveDestinationPath(options.DestinationFilePath)
+            var destinationPath = options.DestinationType == DataLocation.File
+                ? ResolveDestinationPath(options.DestinationFilePath)
                 : null;
 
             var jsonText = input.SourceType == DataLocation.File
                 ? ReadSourceFile(input.JsonFilePath)
                 : input.Json;
 
-            using var jsonReader = new JsonTextReader(new StringReader(jsonText))
-            {
-                DateParseHandling = DateParseHandling.None,
-            };
+            using var jsonReader = new JsonTextReader(new StringReader(jsonText));
+            jsonReader.DateParseHandling = DateParseHandling.None;
             var json = JToken.ReadFrom(jsonReader);
             if (jsonReader.Read())
                 throw new InvalidDataException("JSON input contains content after the root value.");
@@ -77,23 +75,23 @@ public static class FixedWidthFlatFile
             var content = string.Join(Environment.NewLine, records);
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (destinationPath != null)
+            if (destinationPath == null)
             {
-                WriteNewFile(destinationPath, content);
                 return new Result
                 {
                     Success = true,
-                    FlatFileContent = null,
-                    FlatFilePath = destinationPath,
+                    FlatFileContent = content,
+                    FlatFilePath = null,
                     Error = null,
                 };
             }
 
+            WriteNewFile(destinationPath, content);
             return new Result
             {
                 Success = true,
-                FlatFileContent = content,
-                FlatFilePath = null,
+                FlatFileContent = null,
+                FlatFilePath = destinationPath,
                 Error = null,
             };
         }
@@ -105,9 +103,7 @@ public static class FixedWidthFlatFile
 
     private static string ReadSourceFile(string path)
     {
-        if (!File.Exists(path))
-            throw new FileNotFoundException($"JSON source file '{path}' was not found.", path);
-        return File.ReadAllText(path);
+        return !File.Exists(path) ? throw new FileNotFoundException($"JSON source file '{path}' was not found.", path) : File.ReadAllText(path);
     }
 
     private static string ResolveDestinationPath(string path)
@@ -133,10 +129,7 @@ public static class FixedWidthFlatFile
             throw new ArgumentException("Destination file path must include a file name.");
         if (Directory.Exists(fullPath))
             throw new IOException($"Destination path '{fullPath}' is an existing directory.");
-        if (File.Exists(fullPath))
-            throw new IOException($"Destination file '{fullPath}' already exists and will not be overwritten.");
-
-        return fullPath;
+        return File.Exists(fullPath) ? throw new IOException($"Destination file '{fullPath}' already exists and will not be overwritten.") : fullPath;
     }
 
     private static void WriteNewFile(string fullPath, string content)
@@ -204,9 +197,7 @@ public static class FixedWidthFlatFile
         switch (column.Type)
         {
             case ColumnType.String:
-                if (token.Type != JTokenType.String)
-                    throw new InvalidDataException($"Property '{column.Name}' must be a string.");
-                return token.Value<string>();
+                return token.Type != JTokenType.String ? throw new InvalidDataException($"Property '{column.Name}' must be a string.") : token.Value<string>();
             case ColumnType.Char:
                 if (token.Type != JTokenType.String || token.Value<string>().Length != 1)
                     throw new InvalidDataException($"Property '{column.Name}' must contain exactly one character.");
@@ -225,17 +216,18 @@ public static class FixedWidthFlatFile
                     : token.Value<decimal>().ToString(culture);
             case ColumnType.Double:
                 return token.Type == JTokenType.String
-                    ? double.Parse(token.Value<string>(), NumberStyles.Float | NumberStyles.AllowThousands, culture).ToString(culture)
+                    ? double.Parse(token.Value<string>(), NumberStyles.Float | NumberStyles.AllowThousands, culture)
+                        .ToString(culture)
                     : token.Value<double>().ToString(culture);
             case ColumnType.Boolean:
                 return token.Value<bool>().ToString(culture);
             case ColumnType.DateTime:
-            {
-                var date = token.Type == JTokenType.Date
-                    ? token.Value<DateTime>()
-                    : DateTime.Parse(token.Value<string>(), culture, DateTimeStyles.RoundtripKind);
-                return date.ToString(column.DateTimeFormat, culture);
-            }
+                {
+                    var date = token.Type == JTokenType.Date
+                        ? token.Value<DateTime>()
+                        : DateTime.Parse(token.Value<string>(), culture, DateTimeStyles.RoundtripKind);
+                    return date.ToString(column.DateTimeFormat, culture);
+                }
 
             default:
                 throw new InvalidDataException($"Column '{column.Name}' has an unsupported type.");

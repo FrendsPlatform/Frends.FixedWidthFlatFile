@@ -24,6 +24,7 @@ public class Options
     [RequiredIf(nameof(DestinationType), DataLocation.File)]
     [DisplayFormat(DataFormatString = "Text")]
     public string DestinationFilePath { get; set; } = string.Empty;
+
     /// <summary>
     /// Whether to throw an error on failure.
     /// </summary>
