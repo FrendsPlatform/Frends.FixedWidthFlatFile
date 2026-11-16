@@ -36,5 +36,6 @@ public class ColumnSpecification
     /// Length of the column in characters.
     /// </summary>
     /// <example>5</example>
+    [Range(1, int.MaxValue, ErrorMessage = "Column length must be greater than zero.")]
     public int Length { get; set; }
 }

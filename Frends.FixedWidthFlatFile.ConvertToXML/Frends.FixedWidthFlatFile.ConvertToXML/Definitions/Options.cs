@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using Frends.FixedWidthFlatFile.ConvertToXML.Attributes;
 
 namespace Frends.FixedWidthFlatFile.ConvertToXML.Definitions;
 
@@ -20,6 +21,7 @@ public class Options
     /// </summary>
     /// <example>0</example>
     [UIHint(nameof(SkipRows), "", true)]
+    [Range(0, int.MaxValue)]
     [DefaultValue(0)]
     public int SkipRowsFromTop { get; set; }
 
@@ -28,8 +30,25 @@ public class Options
     /// </summary>
     /// <example>0</example>
     [UIHint(nameof(SkipRows), "", true)]
+    [Range(0, int.MaxValue)]
     [DefaultValue(0)]
     public int SkipRowsFromBottom { get; set; }
+
+    /// <summary>
+    /// Whether the XML is returned as a string or written to a file.
+    /// </summary>
+    /// <example>String</example>
+    [DefaultValue(DataLocation.String)]
+    public DataLocation DestinationType { get; set; } = DataLocation.String;
+
+    /// <summary>
+    /// Full path of the XML file to create. Missing directories are created; an existing file is never overwritten.
+    /// </summary>
+    /// <example>C:\output\data.xml</example>
+    [UIHint(nameof(DestinationType), "", DataLocation.File)]
+    [RequiredIf(nameof(DestinationType), DataLocation.File)]
+    [DisplayFormat(DataFormatString = "Text")]
+    public string DestinationFilePath { get; set; } = string.Empty;
 
     /// <summary>
     /// Whether to throw an error on failure.

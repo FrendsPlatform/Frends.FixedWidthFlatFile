@@ -10,9 +10,9 @@ namespace Frends.FixedWidthFlatFile.ConvertToXML.Helpers;
 
 internal static class FlatFileParser
 {
-    internal static ParsedFlatFile Parse(Input input, Options options, CancellationToken cancellationToken)
+    internal static ParsedFlatFile Parse(string content, Input input, Options options, CancellationToken cancellationToken)
     {
-        var rows = ReadLines(input.FlatFileContent);
+        var rows = ReadLines(content);
 
         cancellationToken.ThrowIfCancellationRequested();
 

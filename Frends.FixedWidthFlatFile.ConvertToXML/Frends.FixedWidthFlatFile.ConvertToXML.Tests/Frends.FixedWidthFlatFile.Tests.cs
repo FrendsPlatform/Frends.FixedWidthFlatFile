@@ -372,7 +372,7 @@ public class Tests
         var result = FixedWidthFlatFile.ConvertToXML(input, new Options { ThrowErrorOnFailure = false }, CancellationToken.None);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Error.Message, Is.EqualTo("FlatFileContent not given. Cannot be empty."));
+        Assert.That(result.Error.Message, Does.Contain("FlatFileContent is required."));
     }
 
     [Test]
@@ -383,7 +383,7 @@ public class Tests
         var result = FixedWidthFlatFile.ConvertToXML(input, new Options { ThrowErrorOnFailure = false }, CancellationToken.None);
 
         Assert.That(result.Success, Is.False);
-        Assert.That(result.Error.Message, Is.EqualTo("ColumnSpecifications not given. Cannot be empty."));
+        Assert.That(result.Error.Message, Does.Contain("ColumnSpecifications not given. Cannot be empty."));
     }
 
     [Test]
