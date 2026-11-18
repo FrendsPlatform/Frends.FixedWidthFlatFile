@@ -26,10 +26,8 @@ public enum HeaderRowType
 /// </summary>
 public enum ColumnType
 {
-#pragma warning disable CS1591 // self explanatory
-#pragma warning disable SA1602 // Enumeration items should be documented
+#pragma warning disable SA1602 // self explanatory
     String,
-
     Int,
     Long,
     Decimal,
@@ -37,6 +35,5 @@ public enum ColumnType
     Boolean,
     DateTime,
     Char,
-#pragma warning restore CS1591 // self explanatory
-#pragma warning restore SA1602 // Enumeration items should be documented
+#pragma warning restore SA1602 // self explanatory
 }

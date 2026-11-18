@@ -29,11 +29,11 @@ public class SourceAndDestinationTests
     private static Options WithSpecs(Options options)
     {
         options.HeaderRow = HeaderRowType.FixedWidth;
-        options.ColumnSpecifications = new[]
-        {
+        options.ColumnSpecifications =
+        [
             new ColumnSpecification { Name = "Name", Length = 6 },
-            new ColumnSpecification { Name = "Street", Length = 9 },
-        };
+            new ColumnSpecification { Name = "Street", Length = 9 }
+        ];
         return options;
     }
 

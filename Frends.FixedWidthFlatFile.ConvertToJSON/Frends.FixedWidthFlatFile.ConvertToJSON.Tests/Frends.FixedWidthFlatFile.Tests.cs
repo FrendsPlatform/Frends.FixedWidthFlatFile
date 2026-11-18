@@ -12,15 +12,15 @@ public class Tests
 {
     private const string Content = "Name  Street    Start     Amount\n" +
                                    "Veijo FrendsStr 20180527  12.5\n" +
-                                   "Hodor HodorsStr 20180101  3,25\n";
+                                   "Hodor HodorsStr 20180101  3.25\n";
 
-    private static ColumnSpecification[] Specs() => new[]
-    {
-        new ColumnSpecification { Name = "Name", Type = ColumnType.String, Length = 6 },
-        new ColumnSpecification { Name = "Street", Type = ColumnType.String, Length = 10 },
-        new ColumnSpecification { Name = "Start", Type = ColumnType.DateTime, DateTimeFormat = "yyyyMMdd", Length = 10 },
-        new ColumnSpecification { Name = "Amount", Type = ColumnType.Decimal, Length = 4 },
-    };
+    private static ColumnSpecification[] Specs() =>
+    [
+        new() { Name = "Name", Type = ColumnType.String, Length = 6 },
+        new() { Name = "Street", Type = ColumnType.String, Length = 10 },
+        new() { Name = "Start", Type = ColumnType.DateTime, DateTimeFormat = "yyyyMMdd", Length = 10 },
+        new() { Name = "Amount", Type = ColumnType.Decimal, Length = 4 }
+    ];
 
     private static Input DefaultInput(string content = Content) => new() { FlatFileContent = content };
 
@@ -50,12 +50,31 @@ public class Tests
     }
 
     [Test]
-    public void ConvertsWithCulture()
+    public void ParsesValuesWithGivenCultureAndWritesInvariantJson()
     {
+        var content = "Name  Street    Start     Amount\n" +
+                      "Veijo FrendsStr 20180527  3,25\n";
         var options = DefaultOptions();
         options.Culture = "fi-FI";
-        var json = Run(DefaultInput(), options);
-        Assert.That(json.Count, Is.EqualTo(2));
+        var result = FixedWidthFlatFile.ConvertToJSON(DefaultInput(content), options, CancellationToken.None);
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Data, Contains.Substring("3.25"));
+    }
+
+    [Test]
+    public void ParsesMonthNamesWithGivenCulture()
+    {
+        var options = new Options
+        {
+            HeaderRow = HeaderRowType.None,
+            Culture = "fi-FI",
+            ColumnSpecifications =
+            [
+                new ColumnSpecification { Name = "Start", Type = ColumnType.DateTime, DateTimeFormat = "d. MMMM yyyy", Length = 19 }
+            ],
+        };
+        var json = Run(DefaultInput("27. toukokuuta 2018"), options);
+        Assert.That(((DateTime)json[0]["Start"]).Month, Is.EqualTo(5));
     }
 
     [Test]
@@ -100,11 +119,11 @@ public class Tests
     public void EmptyValueWithoutColumnNameDoesNotThrow()
     {
         var options = DefaultOptions(HeaderRowType.None);
-        options.ColumnSpecifications = new[]
-        {
+        options.ColumnSpecifications =
+        [
             new ColumnSpecification { Length = 6 },
-            new ColumnSpecification { Length = 10 },
-        };
+            new ColumnSpecification { Length = 10 }
+        ];
         var json = Run(DefaultInput("Veijo           "), options);
         Assert.That((string)json[0]["Field_1"], Is.EqualTo("Veijo"));
         Assert.That(json[0]["Field_2"].Type, Is.EqualTo(JTokenType.String));

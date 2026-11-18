@@ -12,6 +12,10 @@
 - **[Breaking Change]** `HeaderRow`, `HeaderDelimiter`, `ColumnSpecifications` and `Culture` are moved from `Input` to
   the `Options` tab.
 - Added `SkipRows`, `SkipRowsFromTop` and `SkipRowsFromBottom` to `Options`.
+- **[Breaking Change]** Values are parsed using the culture given in `Options.Culture` (invariant culture when empty). The
+  previous guess of `fi-FI` for decimal and double values containing a comma was removed: set `Culture` (e.g. `fi-FI`)
+  to parse such values. The json is always written using invariant culture, so the result no longer depends on the
+  culture of the agent.
 
 ## [2.0.0] - 2026-09-10
 

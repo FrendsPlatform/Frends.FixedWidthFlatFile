@@ -36,7 +36,7 @@ public class Options
     public ColumnSpecification[] ColumnSpecifications { get; set; } = [];
 
     /// <summary>
-    /// Culture format json will be build with
+    /// Culture used to parse numeric and date values of the flat file. An empty value uses invariant culture. The json is always written using invariant culture.
     /// </summary>
     /// <example>fi-FI</example>
     [DisplayFormat(DataFormatString = "Text")]
