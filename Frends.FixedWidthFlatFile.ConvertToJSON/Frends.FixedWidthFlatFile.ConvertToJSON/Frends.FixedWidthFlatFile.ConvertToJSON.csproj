@@ -2,7 +2,7 @@
 
   <PropertyGroup>
 	<TargetFramework>net8.0</TargetFramework>
-	<Version>2.0.0</Version>
+	<Version>3.0.0</Version>
     <authors>Frends</authors>
     <copyright>Frends</copyright>
 	<Company>Frends</Company>
@@ -10,7 +10,7 @@
 	<PackageTags>Frends</PackageTags>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Description>Task for converting Frends.FixedWidthFlatFile.Parse result to json format.</Description>
+    <Description>Task for converting fixed width flat file content to json format.</Description>
 	<PackageProjectUrl>https://frends.com/</PackageProjectUrl>
 	<RepositoryUrl>https://github.com/FrendsPlatform/Frends.FixedWidthFlatFile/</RepositoryUrl>
   </PropertyGroup>
