@@ -25,6 +25,26 @@ Hodor   HodorsStr 20180101 ";
     }
 
     [Test]
+    public void ConvertToObject_ReusedOptionsUsesHeadersPerInvocation()
+    {
+        var input = new Input { FlatFileContent = "Old" + Environment.NewLine + "AAA" };
+        var specifications = new[] { new ColumnSpecification { Length = 3, Type = ColumnType.String } };
+        var options = new Options
+        {
+            ColumnSpecifications = specifications,
+            HeaderRow = HeaderRowType.FixedWidth,
+        };
+
+        var firstResult = FixedWidthFlatFile.ConvertToObject(input, options, CancellationToken.None);
+        input.FlatFileContent = "New" + Environment.NewLine + "BBB";
+        var secondResult = FixedWidthFlatFile.ConvertToObject(input, options, CancellationToken.None);
+
+        Assert.That(firstResult.Data[0]["Old"], Is.EqualTo("AAA"));
+        Assert.That(secondResult.Data[0]["New"], Is.EqualTo("BBB"));
+        Assert.That(specifications[0].Name, Is.Empty);
+    }
+
+    [Test]
     public void ConvertToObject_ReadsContentFromFile_Test()
     {
         const string content = @"Name    Street    StartDate

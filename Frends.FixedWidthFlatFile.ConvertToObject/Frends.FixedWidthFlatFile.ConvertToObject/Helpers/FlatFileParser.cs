@@ -24,6 +24,8 @@ internal static class FlatFileParser
 
         cancellationToken.ThrowIfCancellationRequested();
 
+        var columnNames = options.ColumnSpecifications.Select(column => column.Name).ToArray();
+
         switch (options.HeaderRow)
         {
             case HeaderRowType.Delimited:
@@ -43,8 +45,8 @@ internal static class FlatFileParser
             var index = 0;
             foreach (var header in headers)
             {
-                if (string.IsNullOrEmpty(options.ColumnSpecifications[index].Name))
-                    options.ColumnSpecifications[index].Name = header;
+                if (string.IsNullOrEmpty(columnNames[index]))
+                    columnNames[index] = header;
                 index++;
             }
         }
@@ -71,7 +73,7 @@ internal static class FlatFileParser
         foreach (var dataRow in inputRows)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            outputData.Add(ParseDataRow(dataRow, options.ColumnSpecifications));
+            outputData.Add(ParseDataRowWithColumnNames(dataRow, options.ColumnSpecifications, columnNames));
         }
 
         return outputData;
@@ -122,7 +124,10 @@ internal static class FlatFileParser
         }
     }
 
-    internal static Dictionary<string, dynamic> ParseDataRow(string row, ColumnSpecification[] columnSpecifications)
+    internal static Dictionary<string, dynamic> ParseDataRowWithColumnNames(
+        string row,
+        ColumnSpecification[] columnSpecifications,
+        IReadOnlyList<string> columnNames)
     {
         var parsedData = new Dictionary<string, dynamic>();
 
@@ -132,13 +137,13 @@ internal static class FlatFileParser
         {
             var columnSpec = columnSpecifications[i];
             var columnValue = rowValues[i];
-            var columnName = columnSpec.Name;
+            var columnName = columnNames[i];
             if (string.IsNullOrEmpty(columnName))
                 columnName = $"Field_{i + 1}";
 
             if (string.IsNullOrWhiteSpace(columnValue))
             {
-                parsedData.AddKeyValuePair(columnSpec.Name, null);
+                parsedData.AddKeyValuePair(columnName, null);
             }
             else
             {
@@ -175,6 +180,12 @@ internal static class FlatFileParser
         }
 
         return parsedData;
+    }
+
+    internal static Dictionary<string, dynamic> ParseDataRow(string row, ColumnSpecification[] columnSpecifications)
+    {
+        var columnNames = columnSpecifications.Select(column => column.Name).ToArray();
+        return ParseDataRowWithColumnNames(row, columnSpecifications, columnNames);
     }
 
     internal static void AddKeyValuePair(this Dictionary<string, dynamic> dictionary, string key, dynamic value)

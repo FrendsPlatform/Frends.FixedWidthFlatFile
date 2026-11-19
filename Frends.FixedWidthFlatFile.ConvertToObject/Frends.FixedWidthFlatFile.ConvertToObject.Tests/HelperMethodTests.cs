@@ -107,6 +107,21 @@ internal class HelperMethodTests
     }
 
     [Test]
+    public void ParseDataRow_EmptyValueWithUnnamedColumn_UsesGeneratedFieldName()
+    {
+        var columns = new[]
+        {
+            new ColumnSpecification { Type = ColumnType.Int, Length = 3 },
+            new ColumnSpecification { Type = ColumnType.Int, Length = 1 },
+        };
+
+        var result = FlatFileParser.ParseDataRow("   7", columns);
+
+        Assert.That(result["Field_1"], Is.Null);
+        Assert.That(result["Field_2"], Is.EqualTo(7));
+    }
+
+    [Test]
     public void AddKeyValuePair_RenamesDuplicateKeys()
     {
         var dictionary = new Dictionary<string, dynamic>();
