@@ -8,7 +8,6 @@ namespace Frends.FixedWidthFlatFile.ConvertToObject.Attributes;
 /// Validates that a property is required if another property has a specific value.
 /// If a property is null, an empty collection, or an empty or white-space-only string, validation fails.
 /// </summary>
-// TODO : Remove this class if not used
 [ExcludeFromCodeCoverage(Justification = "Untouched version already tested in template solution.")]
 [AttributeUsage(AttributeTargets.Property)]
 internal class RequiredIfAttribute(string dependentProperty, params object[] targetValues) : ValidationAttribute

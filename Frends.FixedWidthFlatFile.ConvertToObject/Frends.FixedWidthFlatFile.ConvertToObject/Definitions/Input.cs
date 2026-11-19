@@ -1,5 +1,6 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using Frends.FixedWidthFlatFile.ConvertToObject.Attributes;
 
 namespace Frends.FixedWidthFlatFile.ConvertToObject.Definitions;
 
@@ -9,18 +10,32 @@ namespace Frends.FixedWidthFlatFile.ConvertToObject.Definitions;
 public class Input
 {
     /// <summary>
-    /// The input string to be repeated and output.
+    /// Whether the flat file is provided as a string or read from a file.
     /// </summary>
-    /// <example>foobar</example>
-    [DisplayFormat(DataFormatString = "Text")]
-    [DefaultValue("Lorem ipsum dolor sit amet.")]
-    [Required]
-    public string Content { get; set; } = string.Empty;
+    /// <example>String</example>
+    [DefaultValue(DataLocation.String)]
+    public DataLocation SourceType { get; set; } = DataLocation.String;
 
     /// <summary>
-    /// Number of times to repeat the input string.
+    /// Fixed width flat file content in string format.
     /// </summary>
-    /// <example>2</example>
-    [DefaultValue(3)]
-    public int Repeat { get; set; }
+    /// <example>
+    /// <code>
+    /// Name    Street    StartDate
+    /// Veijo FrendsStr 20180527
+    /// Hodor HodorsStr 20180101
+    /// </code> </example>
+    [UIHint(nameof(SourceType), "", DataLocation.String)]
+    [RequiredIf(nameof(SourceType), DataLocation.String)]
+    [DisplayFormat(DataFormatString = "Text")]
+    public string FlatFileContent { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Path to an existing file containing the fixed width flat file content.
+    /// </summary>
+    /// <example>C:\input\data.txt</example>
+    [UIHint(nameof(SourceType), "", DataLocation.File)]
+    [RequiredIf(nameof(SourceType), DataLocation.File)]
+    [DisplayFormat(DataFormatString = "Text")]
+    public string FlatFilePath { get; set; } = string.Empty;
 }
