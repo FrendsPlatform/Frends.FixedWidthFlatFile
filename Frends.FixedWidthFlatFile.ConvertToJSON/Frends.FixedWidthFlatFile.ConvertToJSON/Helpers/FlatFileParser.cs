@@ -25,7 +25,7 @@ internal static class FlatFileParser
         List<string> inputRows;
         using (var reader = new StringReader(content))
         {
-            inputRows = ReadLinesToList(reader);
+            inputRows = ReadLinesToList(reader, cancellationToken);
         }
 
         cancellationToken.ThrowIfCancellationRequested();
@@ -76,11 +76,13 @@ internal static class FlatFileParser
         return outputData;
     }
 
-    private static List<string> ReadLinesToList(StringReader reader)
+    private static List<string> ReadLinesToList(StringReader reader, CancellationToken cancellationToken)
     {
         var allLines = new List<string>();
         while (reader.ReadLine() is { } line)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             // skip empty lines
             if (!string.IsNullOrWhiteSpace(line))
                 allLines.Add(line);
@@ -102,7 +104,8 @@ internal static class FlatFileParser
 
     private static List<string> SplitToList(
         string row,
-        ColumnSpecification[] columnSpecifications)
+        ColumnSpecification[] columnSpecifications,
+        bool rejectTrailingContent = false)
     {
         try
         {
@@ -117,7 +120,14 @@ internal static class FlatFileParser
                 startIndex += columnSpec.Length;
             }
 
+            if (rejectTrailingContent && !string.IsNullOrWhiteSpace(row.Substring(startIndex)))
+                throw new InvalidDataException("Data row is longer than the column specifications.");
+
             return values;
+        }
+        catch (InvalidDataException)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -132,7 +142,7 @@ internal static class FlatFileParser
     {
         var parsedData = new Dictionary<string, dynamic>();
 
-        var rowValues = SplitToList(row, columnSpecifications);
+        var rowValues = SplitToList(row, columnSpecifications, true);
 
         for (var i = 0; i < rowValues.Count; i++)
         {
@@ -166,7 +176,10 @@ internal static class FlatFileParser
                     parsedData.AddKeyValuePair(columnName, decimal.Parse(columnValue, culture));
                     break;
                 case ColumnType.Double:
-                    parsedData.AddKeyValuePair(columnName, double.Parse(columnValue, culture));
+                    var number = double.Parse(columnValue, culture);
+                    if (!double.IsFinite(number))
+                        throw new FormatException($"Value '{columnValue}' is not a finite number.");
+                    parsedData.AddKeyValuePair(columnName, number);
                     break;
                 case ColumnType.Int:
                     parsedData.AddKeyValuePair(columnName, int.Parse(columnValue, culture));

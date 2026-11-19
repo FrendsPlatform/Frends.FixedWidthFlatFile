@@ -17,11 +17,12 @@ public class Input
     public DataLocation SourceType { get; set; } = DataLocation.String;
 
     /// <summary>
-    /// Fixed width flat file content in string format.
+    /// Fixed width flat file content in string format. The header row uses the same column widths as data rows.
+    /// The example uses column widths 6, 10 and 8 and the date format yyyyMMdd.
     /// </summary>
     /// <example>
     /// <code>
-    /// Name    Street    StartDate
+    /// Name  Street    Birthday
     /// Veijo FrendsStr 20180527
     /// Hodor HodorsStr 20180101
     /// </code> </example>

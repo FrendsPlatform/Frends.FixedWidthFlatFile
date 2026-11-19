@@ -16,7 +16,7 @@ internal static class JsonBuilder
         CancellationToken cancellationToken)
     {
         var token = WriteToJToken(data, cancellationToken);
-        return JsonConvert.SerializeObject(token);
+        return token.ToString(Formatting.None);
     }
 
     private static JToken WriteToJToken(

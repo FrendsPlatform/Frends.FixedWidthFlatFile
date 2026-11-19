@@ -4,6 +4,9 @@
 
 ### Changed
 
+- Clear error info in case of any non-whitespace content beyond the last column instead of
+  potentially silent data loss.
+- `Double` values that are not finite (e.g. `1e309`) are rejected.
 - **[Breaking Change]** The Task now takes fixed width flat file content directly and parses it internally.
 - **[Breaking Change]** Flat file can be given as a string or read from a file (`Input.SourceType`,
   `Input.FlatFilePath`), and the json can be returned as a string or written to a new file (`Options.DestinationType`,
@@ -12,8 +15,8 @@
 - **[Breaking Change]** `HeaderRow`, `HeaderDelimiter`, `ColumnSpecifications` and `Culture` are moved from `Input` to
   the `Options` tab.
 - Added `SkipRows`, `SkipRowsFromTop` and `SkipRowsFromBottom` to `Options`.
-- **[Breaking Change]** Values are parsed using the culture given in `Options.Culture` (invariant culture when empty). The
-  previous guess of `fi-FI` for decimal and double values containing a comma was removed: set `Culture` (e.g. `fi-FI`)
+- **[Breaking Change]** Values are parsed using the culture given in `Options.Culture` (invariant culture when empty).
+  The previous guess of `fi-FI` for decimal and double values containing a comma was removed: set `Culture` (e.g.  `fi-FI`)
   to parse such values. The json is always written using invariant culture, so the result no longer depends on the
   culture of the agent.
 

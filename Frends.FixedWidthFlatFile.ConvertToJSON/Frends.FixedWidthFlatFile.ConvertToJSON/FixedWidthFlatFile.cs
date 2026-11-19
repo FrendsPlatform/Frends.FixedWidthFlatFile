@@ -28,13 +28,14 @@ public static class FixedWidthFlatFile
         try
         {
             ValidationHandler.Run(input, options);
+            cancellationToken.ThrowIfCancellationRequested();
 
             var destinationPath = options.DestinationType == DataLocation.File
                 ? FileHandler.ResolveDestinationPath(options.DestinationFilePath)
                 : null;
 
             var content = input.SourceType == DataLocation.File
-                ? FileHandler.ReadSource(input.FlatFilePath)
+                ? FileHandler.ReadSource(input.FlatFilePath, cancellationToken)
                 : input.FlatFileContent;
 
             if (string.IsNullOrWhiteSpace(content))
@@ -42,13 +43,13 @@ public static class FixedWidthFlatFile
 
             var culture = string.IsNullOrWhiteSpace(options.Culture)
                 ? CultureInfo.InvariantCulture
-                : new CultureInfo(options.Culture);
+                : new CultureInfo(options.Culture, false);
             var data = FlatFileParser.Parse(content, options, culture, cancellationToken);
             var json = JsonBuilder.Build(data, cancellationToken);
             if (destinationPath == null)
                 return new Result(true, json);
 
-            FileHandler.WriteNewFile(destinationPath, json);
+            FileHandler.WriteNewFile(destinationPath, json, cancellationToken);
             return new Result(true, filePath: destinationPath);
         }
         catch (Exception ex)

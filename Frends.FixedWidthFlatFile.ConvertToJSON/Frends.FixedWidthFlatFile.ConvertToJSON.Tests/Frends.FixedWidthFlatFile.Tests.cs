@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Threading;
 using Frends.FixedWidthFlatFile.ConvertToJSON.Definitions;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
@@ -58,7 +59,9 @@ public class Tests
         options.Culture = "fi-FI";
         var result = FixedWidthFlatFile.ConvertToJSON(DefaultInput(content), options, CancellationToken.None);
         Assert.That(result.Success, Is.True);
-        Assert.That(result.Data, Contains.Substring("3.25"));
+        var amount = JArray.Parse(result.Data)[0]["Amount"];
+        Assert.That(amount.Type, Is.EqualTo(JTokenType.Float));
+        Assert.That((decimal)amount, Is.EqualTo(3.25m));
     }
 
     [Test]
@@ -98,7 +101,7 @@ public class Tests
     }
 
     [Test]
-    public void SkipsRows()
+    public void ConvertToJSON_SkipRowsFromTop_SkipsFirstDataRow()
     {
         var options = DefaultOptions();
         options.SkipRows = true;
@@ -106,11 +109,15 @@ public class Tests
         var json = Run(DefaultInput(), options);
         Assert.That(json.Count, Is.EqualTo(1));
         Assert.That((string)json[0]["Name"], Is.EqualTo("Hodor"));
+    }
 
-        options = DefaultOptions();
+    [Test]
+    public void ConvertToJSON_SkipRowsFromBottom_SkipsLastDataRow()
+    {
+        var options = DefaultOptions();
         options.SkipRows = true;
         options.SkipRowsFromBottom = 1;
-        json = Run(DefaultInput(), options);
+        var json = Run(DefaultInput(), options);
         Assert.That(json.Count, Is.EqualTo(1));
         Assert.That((string)json[0]["Name"], Is.EqualTo("Veijo"));
     }
@@ -137,5 +144,105 @@ public class Tests
         var result = FixedWidthFlatFile.ConvertToJSON(DefaultInput("short"), options, CancellationToken.None);
         Assert.That(result.Success, Is.False);
         Assert.That(result.Error.Message, Contains.Substring("column specifications"));
+    }
+
+    private static Result RunExpectingFailure(string content, ColumnSpecification spec)
+    {
+        var options = new Options
+        {
+            HeaderRow = HeaderRowType.None,
+            ThrowErrorOnFailure = false,
+            ColumnSpecifications = [spec],
+        };
+        var result = FixedWidthFlatFile.ConvertToJSON(DefaultInput(content), options, CancellationToken.None);
+        Assert.That(result.Success, Is.False);
+        return result;
+    }
+
+    [Test]
+    public void ConvertToJSON_MissingColumnLength_Fails()
+    {
+        var result = RunExpectingFailure("42", new ColumnSpecification { Name = "A" });
+        Assert.That(result.Error.Message, Contains.Substring("greater than zero"));
+    }
+
+    [Test]
+    public void ConvertToJSON_RowLongerThanSpecifications_Fails()
+    {
+        var result = RunExpectingFailure("12.59", new ColumnSpecification { Name = "A", Type = ColumnType.Decimal, Length = 4 });
+        Assert.That(result.Error.Message, Contains.Substring("longer than"));
+    }
+
+    [Test]
+    public void ConvertToJSON_RowWithTrailingWhitespace_Succeeds()
+    {
+        var options = new Options
+        {
+            HeaderRow = HeaderRowType.None,
+            ColumnSpecifications = [new ColumnSpecification { Name = "A", Length = 4 }],
+        };
+        var json = Run(DefaultInput("abcd   "), options);
+        Assert.That((string)json[0]["A"], Is.EqualTo("abcd"));
+    }
+
+    [Test]
+    public void ConvertToJSON_NonFiniteDouble_Fails()
+    {
+        var result = RunExpectingFailure("1e309", new ColumnSpecification { Name = "A", Type = ColumnType.Double, Length = 5 });
+        Assert.That(result.Error.Message, Contains.Substring("not a finite number"));
+    }
+
+    [Test]
+    public void ConvertToJSON_FiniteDouble_WritesJsonNumber()
+    {
+        var options = new Options
+        {
+            HeaderRow = HeaderRowType.None,
+            ColumnSpecifications = [new ColumnSpecification { Name = "A", Type = ColumnType.Double, Length = 5 }],
+        };
+        var json = Run(DefaultInput("1.5e3"), options);
+        Assert.That(json[0]["A"].Type, Is.EqualTo(JTokenType.Float));
+        Assert.That((double)json[0]["A"], Is.EqualTo(1500d));
+    }
+
+    [Test]
+    public void ConvertToJSON_CanceledToken_Throws()
+    {
+        using var cts = new CancellationTokenSource();
+        cts.Cancel();
+        var options = new Options
+        {
+            HeaderRow = HeaderRowType.None,
+            ThrowErrorOnFailure = false,
+            ColumnSpecifications = [new ColumnSpecification { Name = "A", Length = 4 }],
+        };
+        Action act = () => FixedWidthFlatFile.ConvertToJSON(DefaultInput("abcd"), options, cts.Token);
+        Assert.Throws<OperationCanceledException>(act);
+    }
+
+    [Test]
+    public void ConvertToJSON_HostJsonDefaultSettings_DoNotAffectOutput()
+    {
+        var previous = JsonConvert.DefaultSettings;
+        JsonConvert.DefaultSettings = () => new JsonSerializerSettings
+        {
+            Culture = new System.Globalization.CultureInfo("fi-FI"),
+            DateFormatString = "MMMM yyyy",
+            Formatting = Formatting.Indented,
+        };
+        try
+        {
+            var options = new Options
+            {
+                HeaderRow = HeaderRowType.None,
+                ColumnSpecifications = [new ColumnSpecification { Name = "D", Type = ColumnType.DateTime, DateTimeFormat = "yyyyMMdd", Length = 8 }],
+            };
+            var result = FixedWidthFlatFile.ConvertToJSON(DefaultInput("20180527"), options, CancellationToken.None);
+            Assert.That(result.Data, Is.EqualTo("[{\"D\":\"2018-05-27T00:00:00\"}]"));
+        }
+        finally
+        {
+            JsonConvert.DefaultSettings = previous;
+        }
     }
 }
