@@ -1,4 +1,4 @@
-﻿namespace Frends.FixedWidthFlatFile.ConvertToObject.Definitions;
+namespace Frends.FixedWidthFlatFile.ConvertToObject.Definitions;
 
 /// <summary>
 /// Result of the task.
@@ -12,10 +12,10 @@ public class Result
     public bool Success { get; set; }
 
     /// <summary>
-    /// Input string repeated the specified number of times.
+    /// Converted fixed width flat file data.
     /// </summary>
-    /// <example>foobar,foobar</example>
-    public string Output { get; set; }
+    /// <example>{[ Name, Foo ], [ Street, Bar ]}</example>
+    public List<Dictionary<string, dynamic>> Data { get; set; } = [];
 
     /// <summary>
     /// Error that occurred during task execution.
