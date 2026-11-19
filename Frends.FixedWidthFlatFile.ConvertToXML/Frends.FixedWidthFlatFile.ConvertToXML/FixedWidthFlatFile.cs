@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -18,24 +18,38 @@ namespace Frends.FixedWidthFlatFile.ConvertToXML;
 public static class FixedWidthFlatFile
 {
     /// <summary>
-    /// Task converts List&lt;dictionary&lt;string, dynamic&gt;&gt; typed object to xml string. Mainly used to convert Frends.FixedWidthFlatFile.Parse result object to xml string.
+    /// Task converts fixed width flat file content to xml string.
     /// [Documentation](https://tasks.frends.com/tasks/frends-tasks/Frends.FixedWidthFlatFile.ConvertToXML)
     /// </summary>
-    /// <param name="input">What value to convert.</param>
-    /// <param name="options">Additional parameters.</param>
+    /// <param name="input">Fixed width flat file content or path.</param>
+    /// <param name="options">Flat file structure and additional parameters.</param>
     /// <param name="cancellationToken">CancellationToken given by Frends.</param>
-    /// <returns>Object { bool Success, Error Error, string Data }</returns>
+    /// <returns>Object { bool Success, Error Error, string Data, string FilePath }</returns>
     public static Result ConvertToXML([PropertyTab] Input input, [PropertyTab] Options options, CancellationToken cancellationToken)
     {
         try
         {
-            if (input.FileContent == null || input.FileContent.Count <= 0)
-                throw new ArgumentNullException(nameof(input), "FileContent not given. Cannot be empty.");
+            ValidationHandler.Run(input, options);
 
-            var xml = WriteToXmlString(input.FileContent, cancellationToken);
-            if (xml == null) throw new Exception("XML parse failed.");
+            var destinationPath = options.DestinationType == DataLocation.File
+                ? ResolveDestinationPath(options.DestinationFilePath)
+                : null;
 
-            return new Result(true, xml);
+            var content = input.SourceType == DataLocation.File
+                ? ReadSourceFile(input.FlatFilePath)
+                : input.FlatFileContent;
+
+            if (string.IsNullOrWhiteSpace(content))
+                throw new ArgumentException("Flat file content is empty.");
+
+            var parsedFile = FlatFileParser.Parse(content, options, cancellationToken);
+            var xml = WriteToXmlString(parsedFile, cancellationToken);
+
+            if (destinationPath == null)
+                return new Result(true, xml);
+
+            WriteNewFile(destinationPath, xml);
+            return new Result(true, filePath: destinationPath);
         }
         catch (Exception ex)
         {
@@ -43,54 +57,97 @@ public static class FixedWidthFlatFile
         }
     }
 
-    private static string WriteToXmlString(List<Dictionary<string, dynamic>> data, CancellationToken cancellationToken)
+    private static string ReadSourceFile(string path)
     {
+        return !File.Exists(path)
+            ? throw new FileNotFoundException($"Flat file source '{path}' was not found.", path)
+            : File.ReadAllText(path);
+    }
+
+    private static string ResolveDestinationPath(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path) || path.IndexOfAny(Path.GetInvalidPathChars()) >= 0)
+            throw new ArgumentException("Destination file path is not a valid path.");
+        if (!Path.IsPathFullyQualified(path))
+            throw new ArgumentException("Destination file path must be a fully qualified absolute path.");
+        if (path.EndsWith(Path.DirectorySeparatorChar) || path.EndsWith(Path.AltDirectorySeparatorChar))
+            throw new ArgumentException("Destination file path must point to a file, not a directory.");
+
+        var fullPath = Path.GetFullPath(path);
+        if (Directory.Exists(fullPath))
+            throw new IOException($"Destination path '{fullPath}' is an existing directory.");
+        return File.Exists(fullPath)
+            ? throw new IOException($"Destination file '{fullPath}' already exists and will not be overwritten.")
+            : fullPath;
+    }
+
+    private static void WriteNewFile(string fullPath, string content)
+    {
+        var directory = Path.GetDirectoryName(fullPath)!;
+        Directory.CreateDirectory(directory);
+
+        // Write to a temp file first so a failed write never leaves a partial file at the final path.
+        var tempPath = Path.Combine(directory, $".{Guid.NewGuid():N}.tmp");
         try
         {
-            using (var ms = new MemoryStream())
+            using (var stream = new FileStream(tempPath, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            using (var writer = new StreamWriter(stream, new UTF8Encoding(false)))
             {
-                using (var writer = new XmlTextWriter(ms, new UTF8Encoding(false)) { Formatting = Formatting.Indented })
+                writer.Write(content);
+            }
+
+            // Move without overwrite throws if the file appeared after validation.
+            File.Move(tempPath, fullPath, false);
+        }
+        catch
+        {
+            if (File.Exists(tempPath))
+                File.Delete(tempPath);
+            throw;
+        }
+    }
+
+    private static string WriteToXmlString(ParsedFlatFile data, CancellationToken cancellationToken)
+    {
+        using (var ms = new MemoryStream())
+        {
+            using (var writer = new XmlTextWriter(ms, new UTF8Encoding(false)) { Formatting = Formatting.Indented })
+            {
+                writer.WriteStartDocument(); // start doc
+                writer.WriteStartElement("Root");
+                writer.WriteStartElement("Rows");
+
+                foreach (var row in data.Rows)
                 {
-                    writer.WriteStartDocument(); // start doc
-                    writer.WriteStartElement("Root");
-                    writer.WriteStartElement("Rows");
+                    cancellationToken.ThrowIfCancellationRequested();
 
-                    foreach (var row in data)
+                    writer.WriteStartElement("Row");
+
+                    for (var i = 0; i < data.ColumnNames.Length; i++)
                     {
-                        writer.WriteStartElement("Row");
-
-                        foreach (var key in row.Keys)
-                        {
-                            cancellationToken.ThrowIfCancellationRequested();
-
-                            // value null check
-                            if (row[key] != null)
-                            {
-                                if (row[key].GetType() == typeof(DateTime))
-                                    writer.WriteElementString(key, row[key].ToString("s"));
-                                else
-                                    writer.WriteElementString(key, row[key].ToString());
-                            }
-                            else // write empty string for null values
-                            {
-                                writer.WriteElementString(key, string.Empty);
-                            }
-                        }
-
-                        writer.WriteEndElement(); // end Row
+                        // write empty string for null values
+                        writer.WriteElementString(data.ColumnNames[i], ValueToString(row[i]));
                     }
 
-                    writer.WriteEndElement(); // end Rows
-                    writer.WriteEndElement(); // end Root
-                    writer.WriteEndDocument(); // end doc
+                    writer.WriteEndElement(); // end Row
                 }
 
-                return Encoding.UTF8.GetString(ms.ToArray());
+                writer.WriteEndElement(); // end Rows
+                writer.WriteEndElement(); // end Root
+                writer.WriteEndDocument(); // end doc
             }
+
+            return Encoding.UTF8.GetString(ms.ToArray());
         }
-        catch (Exception ex)
+    }
+
+    private static string ValueToString(object value)
+    {
+        return value switch
         {
-            throw new Exception(ex.Message);
-        }
+            null => string.Empty,
+            DateTime dateTime => dateTime.ToString("s", CultureInfo.InvariantCulture),
+            _ => Convert.ToString(value, CultureInfo.InvariantCulture),
+        };
     }
 }

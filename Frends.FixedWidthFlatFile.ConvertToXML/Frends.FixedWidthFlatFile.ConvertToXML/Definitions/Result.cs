@@ -5,11 +5,12 @@
 /// </summary>
 public class Result
 {
-    internal Result(bool success, string data = null, Error error = null)
+    internal Result(bool success, string data = null, Error error = null, string filePath = null)
     {
         Success = success;
         Data = data;
         Error = error;
+        FilePath = filePath;
     }
 
     /// <summary>
@@ -25,7 +26,7 @@ public class Result
     public Error Error { get; private set; }
 
     /// <summary>
-    /// The converted data as an XML string.
+    /// The converted data as an XML string. Null when the destination type is File.
     /// </summary>
     /// <example>
     /// &lt;?xml version="1.0" encoding="utf-8"?&gt;
@@ -45,4 +46,10 @@ public class Result
     /// &lt;/Root&gt;
     /// </example>
     public string Data { get; private set; }
+
+    /// <summary>
+    /// Full path of the created XML file. Null when the destination type is String.
+    /// </summary>
+    /// <example>C:\output\data.xml</example>
+    public string FilePath { get; private set; }
 }
