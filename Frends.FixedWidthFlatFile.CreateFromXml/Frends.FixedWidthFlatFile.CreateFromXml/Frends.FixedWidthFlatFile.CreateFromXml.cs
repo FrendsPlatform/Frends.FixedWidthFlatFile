@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using Frends.FixedWidthFlatFile.CreateFromXml.Definitions;
 using Frends.FixedWidthFlatFile.CreateFromXml.Helpers;
 
@@ -10,40 +10,40 @@ namespace Frends.FixedWidthFlatFile.CreateFromXml;
 public static class FixedWidthFlatFile
 {
     /// <summary>
-    /// Frends task to convert xml file into fixed-witdh flat file
+    /// Creates a fixed width flat file from XML (Root/Rows/Row/{column}). The opposite of ConvertToXML task.
     /// [Documentation](https://tasks.frends.com/tasks/frends-tasks/Frends-FixedWidthFlatFile-CreateFromXml)
     /// </summary>
-    /// <param name="input">Essential parameters.</param>
-    /// <param name="connection">Connection parameters.</param>
-    /// <param name="options">Additional parameters.</param>
+    /// <param name="input">XML content or path.</param>
+    /// <param name="options">Flat file structure and additional parameters.</param>
     /// <param name="cancellationToken">A cancellation token provided by Frends Platform.</param>
-    /// <returns>object { bool Success, string Output, object Error { string Message, Exception AdditionalInfo } }</returns>
-    // TODO: Remove Connection parameter if the task does not make connections
+    /// <returns>object { bool Success, string Data, string FilePath, object Error { string Message, Exception AdditionalInfo } }</returns>
     public static Result CreateFromXml(
         [PropertyTab] Input input,
-        [PropertyTab] Connection connection,
         [PropertyTab] Options options,
         CancellationToken cancellationToken)
     {
         try
         {
-            ValidationHandler.Run(input, connection, options);
+            ValidationHandler.Run(input, options);
 
-            // Cancellation token should be provided to methods that support it
-            // and checked during long-running operations, e.g., loops
+            var destinationPath = options.DestinationType == DataLocation.File
+                ? FileHandler.ResolveDestinationPath(options.DestinationFilePath)
+                : null;
+
+            using TextReader reader = input.SourceType == DataLocation.File
+                ? FileHandler.OpenSourceFile(input.XmlFilePath)
+                : new StringReader(input.XmlContent);
+
+            var document = FlatFileWriter.ReadXml(reader);
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (input.Repeat < 0)
-                throw new Exception("Repeat count cannot be negative.");
+            var flatFile = FlatFileWriter.Write(document, options, cancellationToken);
 
-            var output = string.Join(options.Delimiter, Enumerable.Repeat(input.Content, input.Repeat));
+            if (destinationPath == null)
+                return new Result { Success = true, Data = flatFile };
 
-            return new Result
-            {
-                Success = true,
-                Output = output,
-                Error = null,
-            };
+            FileHandler.WriteNewFile(destinationPath, flatFile);
+            return new Result { Success = true, FilePath = destinationPath };
         }
         catch (Exception ex)
         {

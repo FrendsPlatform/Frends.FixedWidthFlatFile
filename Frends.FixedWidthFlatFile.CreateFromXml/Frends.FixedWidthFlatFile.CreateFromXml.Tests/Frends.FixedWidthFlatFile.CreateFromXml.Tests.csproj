@@ -8,10 +8,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Frends.FixedWidthFlatFile.CreateFromXml\Frends.FixedWidthFlatFile.CreateFromXml.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Include=".env" CopyToOutputDirectory="PreserveNewest" Condition="Exists('.env')" />
+        <ProjectReference Include="..\..\Frends.FixedWidthFlatFile.ConvertToXML\Frends.FixedWidthFlatFile.ConvertToXML\Frends.FixedWidthFlatFile.ConvertToXML.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -26,7 +23,6 @@
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.12.0" />
         <PackageReference Include="NUnit" Version="5.0.0" />
         <PackageReference Include="NUnit3TestAdapter" Version="6.3.1" />
-        <PackageReference Include="dotenv.net" Version="4.2.0" />
-        <PackageReference Include="Testcontainers" Version="4.17.0" />
     </ItemGroup>
 </Project>
+

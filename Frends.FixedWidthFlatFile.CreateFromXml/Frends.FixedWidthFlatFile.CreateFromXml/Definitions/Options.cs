@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using Frends.FixedWidthFlatFile.CreateFromXml.Attributes;
 
 namespace Frends.FixedWidthFlatFile.CreateFromXml.Definitions;
 
@@ -9,23 +10,54 @@ namespace Frends.FixedWidthFlatFile.CreateFromXml.Definitions;
 public class Options
 {
     /// <summary>
-    /// Delimiter to use between the repeated strings.
+    /// None: Flat file is created without a header row
+    /// FixedWidth: Header row is written using column specification
+    /// Delimited: Header row is written using delimiter char
     /// </summary>
-    /// <example>,</example>
-    [DisplayFormat(DataFormatString = "Text")]
-    [DefaultValue(" ")]
-    public string Delimiter { get; set; }
+    /// <example>HeaderRowType.FixedWidth</example>
+    [DefaultValue(HeaderRowType.FixedWidth)]
+    public HeaderRowType HeaderRow { get; set; } = HeaderRowType.FixedWidth;
 
     /// <summary>
-    /// Whether to continue processing remaining files when a single item fails. If false, the task stops on the first failure
-    /// (local filesystem tasks roll back everything processed in the current run, remote tasks keep already completed operations).
-    /// If true, the failure is recorded per item and the remaining files are still processed.
+    /// If header row uses delimiter set it here.
     /// </summary>
-    /// <example>false</example>
-    // TODO: Remove this property if the task does not process batches of files (upload, download, copy, move),
-    // e.g. message queue or event-driven tasks.
-    [DefaultValue(false)]
-    public bool ContinueOnFailure { get; set; } = false;
+    /// <example>;</example>
+    [UIHint(nameof(HeaderRow), "", HeaderRowType.Delimited)]
+    [RequiredIf(nameof(HeaderRow), HeaderRowType.Delimited, AllowSingleWhitespace = true)]
+    [DisplayFormat(DataFormatString = "Text")]
+    public string HeaderDelimiter { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Column specifications of the flat file that is being created.
+    /// </summary>
+    /// <example>[ Example, ColumnType.String, yyyy-MM-ddTHH:mm:ss, 5 ]</example>
+    [Required]
+    [MinLength(1, ErrorMessage = "ColumnSpecifications not given. Cannot be empty.")]
+    public ColumnSpecification[] ColumnSpecifications { get; set; } = [];
+
+    /// <summary>
+    /// Culture used to format numeric and date values of the flat file. An empty value uses invariant culture.
+    /// </summary>
+    /// <example>fi-FI</example>
+    [DisplayFormat(DataFormatString = "Text")]
+    [DefaultValue("")]
+    public string Culture { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Whether the flat file is returned as a string or written to a file.
+    /// </summary>
+    /// <example>String</example>
+    [DefaultValue(DataLocation.String)]
+    public DataLocation DestinationType { get; set; } = DataLocation.String;
+
+    /// <summary>
+    /// Full path of the flat file to create. Missing directories are created; an existing file is never overwritten.
+    /// </summary>
+    /// <example>C:\output\data.txt</example>
+    [UIHint(nameof(DestinationType), "", DataLocation.File)]
+    [RequiredIf(nameof(DestinationType), DataLocation.File)]
+    [DisplayFormat(DataFormatString = "Text")]
+    public string DestinationFilePath { get; set; } = string.Empty;
 
     /// <summary>
     /// Whether to throw an error on failure.
@@ -35,9 +67,9 @@ public class Options
     public bool ThrowErrorOnFailure { get; set; } = true;
 
     /// <summary>
-    /// Overrides the error message on failure.
+    /// Overrides the error message on failure. If `ThrowErrorOnFailure` is set to `true`, then the original exception will be wrapped in a new Exception with this error message.
     /// </summary>
-    /// <example>Custom error message</example>
+    /// <example>Creating flat file from XML failed.</example>
     [DisplayFormat(DataFormatString = "Text")]
     [DefaultValue("")]
     public string ErrorMessageOnFailure { get; set; } = string.Empty;

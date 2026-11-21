@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <LangVersion>latest</LangVersion>
@@ -10,7 +10,7 @@
         <PackageTags>Frends</PackageTags>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <Description>Frends task to convert xml file into fixed-witdh flat file</Description>
+        <Description>Frends task to create a fixed-width flat file from XML</Description>
         <PackageProjectUrl>https://frends.com/</PackageProjectUrl>
         <RepositoryUrl>https://github.com/FrendsPlatform/Frends.FixedWidthFlatFile/tree/main/Frends.FixedWidthFlatFile.CreateFromXml</RepositoryUrl>
         <Nullable>disable</Nullable>

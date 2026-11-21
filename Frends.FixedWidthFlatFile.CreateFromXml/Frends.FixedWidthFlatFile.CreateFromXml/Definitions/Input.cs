@@ -1,5 +1,6 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using Frends.FixedWidthFlatFile.CreateFromXml.Attributes;
 
 namespace Frends.FixedWidthFlatFile.CreateFromXml.Definitions;
 
@@ -9,18 +10,30 @@ namespace Frends.FixedWidthFlatFile.CreateFromXml.Definitions;
 public class Input
 {
     /// <summary>
-    /// The input string to be repeated and output.
+    /// Whether the XML is provided as a string or read from a file.
     /// </summary>
-    /// <example>foobar</example>
-    [DisplayFormat(DataFormatString = "Text")]
-    [DefaultValue("Lorem ipsum dolor sit amet.")]
-    [Required]
-    public string Content { get; set; } = string.Empty;
+    /// <example>String</example>
+    [DefaultValue(DataLocation.String)]
+    public DataLocation SourceType { get; set; } = DataLocation.String;
 
     /// <summary>
-    /// Number of times to repeat the input string.
+    /// XML content in the format Root/Rows/Row/{column}.
     /// </summary>
-    /// <example>2</example>
-    [DefaultValue(3)]
-    public int Repeat { get; set; }
+    /// <example>
+    /// <code>
+    /// &lt;Root&gt;&lt;Rows&gt;&lt;Row&gt;&lt;Name&gt;Veijo&lt;/Name&gt;&lt;/Row&gt;&lt;/Rows&gt;&lt;/Root&gt;
+    /// </code> </example>
+    [UIHint(nameof(SourceType), "", DataLocation.String)]
+    [RequiredIf(nameof(SourceType), DataLocation.String)]
+    [DisplayFormat(DataFormatString = "Text")]
+    public string XmlContent { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Path to a file containing the XML.
+    /// </summary>
+    /// <example>C:\input\data.xml</example>
+    [UIHint(nameof(SourceType), "", DataLocation.File)]
+    [RequiredIf(nameof(SourceType), DataLocation.File)]
+    [DisplayFormat(DataFormatString = "Text")]
+    public string XmlFilePath { get; set; } = string.Empty;
 }

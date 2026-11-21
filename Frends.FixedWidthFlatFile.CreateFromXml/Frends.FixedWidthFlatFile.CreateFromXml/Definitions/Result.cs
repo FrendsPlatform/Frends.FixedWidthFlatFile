@@ -1,4 +1,4 @@
-﻿namespace Frends.FixedWidthFlatFile.CreateFromXml.Definitions;
+namespace Frends.FixedWidthFlatFile.CreateFromXml.Definitions;
 
 /// <summary>
 /// Result of the task.
@@ -12,10 +12,19 @@ public class Result
     public bool Success { get; set; }
 
     /// <summary>
-    /// Input string repeated the specified number of times.
+    /// The created fixed width flat file content. Null when the destination type is File.
     /// </summary>
-    /// <example>foobar,foobar</example>
-    public string Output { get; set; }
+    /// <example>
+    /// Name    Street    StartDate
+    /// Veijo   FrendsStr 20180527
+    /// </example>
+    public string Data { get; set; }
+
+    /// <summary>
+    /// Full path of the created flat file. Null when the destination type is String.
+    /// </summary>
+    /// <example>C:\output\data.txt</example>
+    public string FilePath { get; set; }
 
     /// <summary>
     /// Error that occurred during task execution.
