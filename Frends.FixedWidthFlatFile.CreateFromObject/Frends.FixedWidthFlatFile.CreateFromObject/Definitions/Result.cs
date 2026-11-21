@@ -1,4 +1,4 @@
-﻿namespace Frends.FixedWidthFlatFile.CreateFromObject.Definitions;
+namespace Frends.FixedWidthFlatFile.CreateFromObject.Definitions;
 
 /// <summary>Result of the fixed-width formatting task.</summary>
 public class Result
