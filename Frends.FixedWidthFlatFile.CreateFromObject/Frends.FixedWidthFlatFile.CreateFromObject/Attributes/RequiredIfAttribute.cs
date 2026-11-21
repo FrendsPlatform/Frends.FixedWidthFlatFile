@@ -1,36 +1,21 @@
-using System.Collections;
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Frends.FixedWidthFlatFile.CreateFromObject.Attributes;
 
-/// <summary>
-/// Validates that a property is required if another property has a specific value.
-/// If a property is null, an empty collection, or an empty or white-space-only string, validation fails.
-/// </summary>
-// TODO : Remove this class if not used
-[ExcludeFromCodeCoverage(Justification = "Untouched version already tested in template solution.")]
 [AttributeUsage(AttributeTargets.Property)]
-internal class RequiredIfAttribute(string dependentProperty, params object[] targetValues) : ValidationAttribute
+internal sealed class RequiredIfAttribute(string dependentProperty, object targetValue) : ValidationAttribute
 {
     protected override ValidationResult IsValid(object value, ValidationContext validationContext)
     {
-        var field = validationContext.ObjectType.GetProperty(dependentProperty);
-
-        if (field == null)
+        var property = validationContext.ObjectType.GetProperty(dependentProperty);
+        if (property == null)
             return new ValidationResult($"Unknown property: {dependentProperty}");
 
-        var dependentValue = field.GetValue(validationContext.ObjectInstance);
+        if (!Equals(property.GetValue(validationContext.ObjectInstance), targetValue))
+            return ValidationResult.Success;
 
-        if (!targetValues.Contains(dependentValue)) return ValidationResult.Success;
-
-        if (value == null ||
-            (value is string s && string.IsNullOrWhiteSpace(s)) ||
-            (value is IEnumerable collection && !collection.Cast<object>().Any()))
-        {
-            return new ValidationResult(ErrorMessage ?? $"{validationContext.DisplayName} is required.");
-        }
-
-        return ValidationResult.Success;
+        return value is string text && !string.IsNullOrWhiteSpace(text)
+            ? ValidationResult.Success
+            : new ValidationResult(ErrorMessage ?? $"{validationContext.DisplayName} is required.");
     }
 }

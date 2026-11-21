@@ -1,26 +1,16 @@
-﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Frends.FixedWidthFlatFile.CreateFromObject.Definitions;
 
 /// <summary>
-/// Essential parameters.
+/// Data and fixed-width layout parameters.
 /// </summary>
 public class Input
 {
     /// <summary>
-    /// The input string to be repeated and output.
+    /// Rows to write. Each row must contain a value for every configured column; null values are written as spaces.
     /// </summary>
-    /// <example>foobar</example>
-    [DisplayFormat(DataFormatString = "Text")]
-    [DefaultValue("Lorem ipsum dolor sit amet.")]
+    /// <example>[{ "Name": "Veijo", "StartDate": "2018-05-27T00:00:00" }]</example>
     [Required]
-    public string Content { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Number of times to repeat the input string.
-    /// </summary>
-    /// <example>2</example>
-    [DefaultValue(3)]
-    public int Repeat { get; set; }
+    public List<Dictionary<string, object>> Data { get; set; } = [];
 }
