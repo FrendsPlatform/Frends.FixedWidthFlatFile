@@ -11,11 +11,13 @@ public class Result
     /// <param name="success">Whether the operation completed successfully.</param>
     /// <param name="data">Converted json data. Null on failure.</param>
     /// <param name="error">Error details. Null when success is true.</param>
-    public Result(bool success, string data = null, Error error = null)
+    /// <param name="filePath">Path of the created json file. Null when the destination type is String.</param>
+    public Result(bool success, string data = null, Error error = null, string filePath = null)
     {
         Success = success;
         Data = data;
         Error = error;
+        FilePath = filePath;
     }
 
     /// <summary>
@@ -31,7 +33,7 @@ public class Result
     public Error Error { get; private set; }
 
     /// <summary>
-    /// Converted json data.
+    /// Converted json data. Null when the destination type is File.
     /// </summary>
     /// <example>
     /// [
@@ -48,4 +50,10 @@ public class Result
     /// ]
     /// </example>
     public string Data { get; private set; }
+
+    /// <summary>
+    /// Full path of the created json file. Null when the destination type is String.
+    /// </summary>
+    /// <example>C:\output\data.json</example>
+    public string FilePath { get; private set; }
 }

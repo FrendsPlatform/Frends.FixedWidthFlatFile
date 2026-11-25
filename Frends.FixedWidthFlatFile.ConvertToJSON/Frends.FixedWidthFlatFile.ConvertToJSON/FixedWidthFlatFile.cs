@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.ComponentModel;
 using System.Globalization;
 using System.Threading;
 using Frends.FixedWidthFlatFile.ConvertToJSON.Definitions;
 using Frends.FixedWidthFlatFile.ConvertToJSON.Helpers;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Frends.FixedWidthFlatFile.ConvertToJSON;
 
@@ -16,64 +13,48 @@ namespace Frends.FixedWidthFlatFile.ConvertToJSON;
 public static class FixedWidthFlatFile
 {
     /// <summary>
-    /// Task converts List&lt;dictionary&lt;string, dynamic&gt;&gt; typed object to json string. Mainly used to convert Frends.FixedWidthFlatFile.Parse result object to json string.
+    /// Task parses fixed width flat file content and converts it to a json string.
     /// [Documentation](https://tasks.frends.com/tasks/frends-tasks/Frends.FixedWidthFlatFile.ConvertToJSON)
     /// </summary>
-    /// <param name="input">Value to convert.</param>
+    /// <param name="input">Flat file content and its specifications.</param>
     /// <param name="options">Additional parameters.</param>
     /// <param name="cancellationToken">CancellationToken given by Frends.</param>
-    /// <returns>object { bool Success, Error Error, string Data }</returns>
-    public static Result ConvertToJSON([PropertyTab] Input input, [PropertyTab] Options options, CancellationToken cancellationToken)
+    /// <returns>object { bool Success, Error Error, string Data, string FilePath }</returns>
+    public static Result ConvertToJSON(
+        [PropertyTab] Input input,
+        [PropertyTab] Options options,
+        CancellationToken cancellationToken)
     {
         try
         {
-            if (input.FileContent == null || input.FileContent.Count <= 0) throw new ArgumentNullException("FileContent not given or in wrong type. Cannot be empty.");
+            ValidationHandler.Run(input, options);
+            cancellationToken.ThrowIfCancellationRequested();
 
-            CultureInfo culture = string.IsNullOrWhiteSpace(input.Culture) ? CultureInfo.InvariantCulture : new CultureInfo(input.Culture);
-            JToken jToken = WriteToJToken(input.FileContent, culture, cancellationToken);
-            if (jToken == null) throw new Exception("JSON parse failed.");
+            var destinationPath = options.DestinationType == DataLocation.File
+                ? FileHandler.ResolveDestinationPath(options.DestinationFilePath)
+                : null;
 
-            return new Result(true, JsonConvert.SerializeObject(jToken));
+            var content = input.SourceType == DataLocation.File
+                ? FileHandler.ReadSource(input.FlatFilePath, cancellationToken)
+                : input.FlatFileContent;
+
+            if (string.IsNullOrWhiteSpace(content))
+                throw new ArgumentException("Flat file content is empty.");
+
+            var culture = string.IsNullOrWhiteSpace(options.Culture)
+                ? CultureInfo.InvariantCulture
+                : new CultureInfo(options.Culture, false);
+            var data = FlatFileParser.Parse(content, options, culture, cancellationToken);
+            var json = JsonBuilder.Build(data, cancellationToken);
+            if (destinationPath == null)
+                return new Result(true, json);
+
+            FileHandler.WriteNewFile(destinationPath, json, cancellationToken);
+            return new Result(true, filePath: destinationPath);
         }
         catch (Exception ex)
         {
             return ex.Handle(options);
-        }
-    }
-
-    private static JToken WriteToJToken(List<Dictionary<string, dynamic>> data, CultureInfo culture, CancellationToken cancellationToken)
-    {
-        using (var writer = new JTokenWriter())
-        {
-            writer.Formatting = Formatting.Indented;
-            writer.Culture = culture;
-
-            writer.WriteStartArray(); // root start
-
-            foreach (var row in data)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                writer.WriteStartObject(); // start row object
-                foreach (var key in row.Keys)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    writer.WritePropertyName(key);
-
-                    // null check
-                    if (row[key] != null)
-                        writer.WriteValue(row[key]);
-                    else // write empty string value for null fields
-                        writer.WriteValue(string.Empty);
-                }
-
-                writer.WriteEndObject(); // end row
-            }
-
-            writer.WriteEndArray(); // root array end
-
-            return writer.Token;
         }
     }
 }
