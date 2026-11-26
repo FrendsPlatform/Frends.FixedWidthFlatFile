@@ -8,8 +8,6 @@ namespace Frends.FixedWidthFlatFile.CreateFromXml.Helpers;
 
 internal static class FlatFileWriter
 {
-    private const string DefaultDateTimeFormat = "yyyy-MM-dd HH:mm:ss";
-
     internal static string Write(XDocument document, Options options, CancellationToken cancellationToken)
     {
         var rows = document.Root?.Element("Rows")?.Elements("Row").ToList()
@@ -66,7 +64,11 @@ internal static class FlatFileWriter
 
     // DTD processing is prohibited to protect against XXE and entity expansion attacks.
     private static XmlReaderSettings SafeSettings() =>
-        new() { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null };
+        new()
+        {
+            DtdProcessing = DtdProcessing.Prohibit,
+            XmlResolver = null
+        };
 
     private static string[] HeaderNames(ColumnSpecification[] specs, List<XElement> rows)
     {
@@ -103,7 +105,8 @@ internal static class FlatFileWriter
             }
 
             if (value.Contains('\r') || value.Contains('\n'))
-                throw new InvalidDataException($"Value of column {i + 1} on line {rowNumber + 1} contains a line break.");
+                throw new InvalidDataException(
+                    $"Value of column {i + 1} on line {rowNumber + 1} contains a line break.");
 
             sb.Append(value.PadRight(specs[i].Length));
         }
@@ -136,14 +139,15 @@ internal static class FlatFileWriter
         catch (FormatException ex)
         {
             throw new InvalidDataException(
-                $"Value '{text}' of column {index + 1} cannot be converted to {spec.Type}.", ex);
+                $"Value '{text}' of column {index + 1} cannot be converted to {spec.Type}.",
+                ex);
         }
     }
 
     private static string FormatDateTime(string text, ColumnSpecification spec, CultureInfo culture)
     {
         var date = DateTime.Parse(text, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
-        var format = string.IsNullOrWhiteSpace(spec.DateTimeFormat) ? DefaultDateTimeFormat : spec.DateTimeFormat;
+        var format = spec.DateTimeFormat;
         return date.ToString(format, culture);
     }
 }
