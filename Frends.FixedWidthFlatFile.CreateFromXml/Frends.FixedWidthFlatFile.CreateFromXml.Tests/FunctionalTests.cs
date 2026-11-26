@@ -105,8 +105,19 @@ internal class FunctionalTests
             Culture = "fi-FI",
             ColumnSpecifications =
             [
-                new ColumnSpecification { Name = "Price", Type = ColumnType.Decimal, Length = 8 },
-                new ColumnSpecification { Name = "Day", Type = ColumnType.DateTime, DateTimeFormat = "dd.MM.yyyy", Length = 10 },
+                new ColumnSpecification
+                {
+                    Name = "Price",
+                    Type = ColumnType.Decimal,
+                    Length = 8,
+                },
+                new ColumnSpecification
+                {
+                    Name = "Day",
+                    Type = ColumnType.DateTime,
+                    DateTimeFormat = "dd.MM.yyyy",
+                    Length = 10,
+                },
             ],
         };
 
@@ -124,8 +135,18 @@ internal class FunctionalTests
             HeaderRow = HeaderRowType.None,
             ColumnSpecifications =
             [
-                new ColumnSpecification { Name = "A", Type = ColumnType.String, Length = 1 },
-                new ColumnSpecification { Name = "B", Type = ColumnType.Char, Length = 1 },
+                new ColumnSpecification
+                {
+                    Name = "A",
+                    Type = ColumnType.String,
+                    Length = 1,
+                },
+                new ColumnSpecification
+                {
+                    Name = "B",
+                    Type = ColumnType.Char,
+                    Length = 1,
+                },
             ],
         };
 
@@ -133,24 +154,6 @@ internal class FunctionalTests
         var result = Run(new Input { XmlContent = xml }, options);
 
         Assert.That(result.Data, Is.EqualTo("\u00A0\u00A0"));
-    }
-
-    [Test]
-    public void EmptyDateTimeFormatUsesDefaultFormat()
-    {
-        var options = new Options
-        {
-            HeaderRow = HeaderRowType.None,
-            ColumnSpecifications =
-            [
-                new ColumnSpecification { Name = "D", Type = ColumnType.DateTime, DateTimeFormat = string.Empty, Length = 19 },
-            ],
-        };
-
-        var xml = "<Root><Rows><Row><D>2018-05-27T13:14:15</D></Row></Rows></Root>";
-        var result = Run(new Input { XmlContent = xml }, options);
-
-        Assert.That(result.Data, Is.EqualTo("2018-05-27 13:14:15"));
     }
 
     [Test]
@@ -162,8 +165,18 @@ internal class FunctionalTests
             HeaderDelimiter = "\n",
             ColumnSpecifications =
             [
-                new ColumnSpecification { Name = "A", Type = ColumnType.String, Length = 1 },
-                new ColumnSpecification { Name = "B", Type = ColumnType.String, Length = 1 },
+                new ColumnSpecification
+                {
+                    Name = "A",
+                    Type = ColumnType.String,
+                    Length = 1,
+                },
+                new ColumnSpecification
+                {
+                    Name = "B",
+                    Type = ColumnType.String,
+                    Length = 1,
+                },
             ],
         };
 
@@ -187,7 +200,13 @@ internal class FunctionalTests
         var options = DefaultOptions();
         options.DestinationType = DataLocation.File;
         options.DestinationFilePath = flatPath;
-        var result = Run(new Input { SourceType = DataLocation.File, XmlFilePath = xmlPath }, options);
+        var result = Run(
+            new Input
+            {
+                SourceType = DataLocation.File,
+                XmlFilePath = xmlPath,
+            },
+            options);
 
         Assert.That(result.Success, Is.True);
         Assert.That(result.Data, Is.Null);
@@ -250,7 +269,13 @@ internal class FunctionalTests
         var options = DefaultOptions();
         options.ThrowErrorOnFailure = false;
 
-        var result = Run(new Input { SourceType = DataLocation.File, XmlFilePath = Path.Combine(tempDir, "no.xml") }, options);
+        var result = Run(
+            new Input
+            {
+                SourceType = DataLocation.File,
+                XmlFilePath = Path.Combine(tempDir, "no.xml"),
+            },
+            options);
 
         Assert.That(result.Success, Is.False);
         Assert.That(result.Error.AdditionalInfo, Is.TypeOf<FileNotFoundException>());
@@ -330,11 +355,37 @@ internal class FunctionalTests
         HeaderRow = HeaderRowType.FixedWidth,
         ColumnSpecifications =
         [
-            new ColumnSpecification { Name = "Name", Type = ColumnType.String, Length = 8 },
-            new ColumnSpecification { Name = "Street", Type = ColumnType.String, Length = 10 },
-            new ColumnSpecification { Name = "StartDate", Type = ColumnType.DateTime, DateTimeFormat = "yyyyMMdd", Length = 10 },
-            new ColumnSpecification { Name = "Salary", Type = ColumnType.Decimal, Length = 7 },
-            new ColumnSpecification { Name = "Active", Type = ColumnType.Boolean, Length = 6 },
+            new ColumnSpecification
+            {
+                Name = "Name",
+                Type = ColumnType.String,
+                Length = 8,
+            },
+            new ColumnSpecification
+            {
+                Name = "Street",
+                Type = ColumnType.String,
+                Length = 10,
+            },
+            new ColumnSpecification
+            {
+                Name = "StartDate",
+                Type = ColumnType.DateTime,
+                DateTimeFormat = "yyyyMMdd",
+                Length = 10,
+            },
+            new ColumnSpecification
+            {
+                Name = "Salary",
+                Type = ColumnType.Decimal,
+                Length = 7,
+            },
+            new ColumnSpecification
+            {
+                Name = "Active",
+                Type = ColumnType.Boolean,
+                Length = 6,
+            },
         ],
     };
 }

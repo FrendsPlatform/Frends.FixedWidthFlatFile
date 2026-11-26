@@ -67,7 +67,7 @@ internal static class FlatFileWriter
         new()
         {
             DtdProcessing = DtdProcessing.Prohibit,
-            XmlResolver = null
+            XmlResolver = null,
         };
 
     private static string[] HeaderNames(ColumnSpecification[] specs, List<XElement> rows)
@@ -78,7 +78,7 @@ internal static class FlatFileWriter
         {
             names[i] = !string.IsNullOrEmpty(specs[i].Name)
                 ? specs[i].Name
-                : (i < firstRowElements.Count ? firstRowElements[i].Name.LocalName : string.Empty);
+                : i < firstRowElements.Count ? firstRowElements[i].Name.LocalName : string.Empty;
         }
 
         return names;
@@ -105,8 +105,10 @@ internal static class FlatFileWriter
             }
 
             if (value.Contains('\r') || value.Contains('\n'))
+            {
                 throw new InvalidDataException(
                     $"Value of column {i + 1} on line {rowNumber + 1} contains a line break.");
+            }
 
             sb.Append(value.PadRight(specs[i].Length));
         }
