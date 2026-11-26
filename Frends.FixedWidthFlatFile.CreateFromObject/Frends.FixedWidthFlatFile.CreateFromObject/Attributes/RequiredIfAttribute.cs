@@ -14,7 +14,7 @@ internal sealed class RequiredIfAttribute(string dependentProperty, object targe
         if (!Equals(property.GetValue(validationContext.ObjectInstance), targetValue))
             return ValidationResult.Success;
 
-        return value is string text && !string.IsNullOrWhiteSpace(text)
+        return value is string text && !string.IsNullOrEmpty(text)
             ? ValidationResult.Success
             : new ValidationResult(ErrorMessage ?? $"{validationContext.DisplayName} is required.");
     }

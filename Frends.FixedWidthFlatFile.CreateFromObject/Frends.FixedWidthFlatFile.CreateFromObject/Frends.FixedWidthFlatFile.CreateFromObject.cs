@@ -38,6 +38,7 @@ public static class FixedWidthFlatFile
             }
 
             var columnNames = FlatFileParser.GetColumnNames(options.ColumnSpecifications);
+            var sourceKeys = FlatFileParser.GetSourceKeys(options.ColumnSpecifications);
             var rows = new List<string>();
             switch (options.HeaderRow)
             {
@@ -76,13 +77,13 @@ public static class FixedWidthFlatFile
                     throw new ArgumentException("Data rows cannot contain null values.", nameof(input));
                 }
 
-                var values = new object[columnNames.Count];
-                for (var index = 0; index < columnNames.Count; index++)
+                var values = new object[sourceKeys.Count];
+                for (var index = 0; index < sourceKeys.Count; index++)
                 {
-                    if (!dataRow.TryGetValue(columnNames[index], out values[index]))
+                    if (!dataRow.TryGetValue(sourceKeys[index], out values[index]))
                     {
                         throw new ArgumentException(
-                            $"Data row is missing the '{columnNames[index]}' column.",
+                            $"Data row is missing the '{sourceKeys[index]}' column.",
                             nameof(input));
                     }
                 }

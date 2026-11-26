@@ -136,7 +136,7 @@ internal class FunctionalTests
     }
 
     [Test]
-    public void ThrowsWhenDataDoesNotContainConfiguredColumn()
+    public async Task ThrowsWhenDataDoesNotContainConfiguredColumn()
     {
         var input = new Input
         {
@@ -148,17 +148,17 @@ internal class FunctionalTests
             ColumnSpecifications = [new ColumnSpecification { Name = "Missing", Length = 3 }],
         };
 
-        Assert.ThrowsAsync<ArgumentException>(async () =>
+        await Assert.ThrowsAsync<ArgumentException>(async () =>
             await FixedWidthFlatFile.CreateFromObject(input, options, CancellationToken.None));
     }
 
     [Test]
-    public void PropagatesCancellation()
+    public async Task PropagatesCancellation()
     {
         using var cancellationSource = new CancellationTokenSource();
         cancellationSource.Cancel();
 
-        Assert.ThrowsAsync<OperationCanceledException>(async () =>
+        await Assert.ThrowsAsync<OperationCanceledException>(async () =>
             await FixedWidthFlatFile.CreateFromObject(
                 new Input(),
                 new Options

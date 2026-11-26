@@ -5,6 +5,14 @@ namespace Frends.FixedWidthFlatFile.CreateFromObject.Helpers;
 
 internal static class FlatFileParser
 {
+    internal static List<string> GetSourceKeys(ColumnSpecification[] columnSpecifications)
+    {
+        return columnSpecifications
+            .Select((specification, index) =>
+                string.IsNullOrEmpty(specification.Name) ? $"Field_{index + 1}" : specification.Name)
+            .ToList();
+    }
+
     internal static List<string> GetColumnNames(ColumnSpecification[] columnSpecifications)
     {
         var names = new List<string>(columnSpecifications.Length);
@@ -35,6 +43,12 @@ internal static class FlatFileParser
             var value = values[index];
             var specification = columnSpecifications[index];
             var text = FormatValue(value, specification);
+            if (text.Contains('\r') || text.Contains('\n'))
+            {
+                throw new InvalidDataException(
+                    $"Value for column '{specification.Name}' cannot contain line breaks.");
+            }
+
             if (text.Length > specification.Length)
             {
                 throw new InvalidDataException(
