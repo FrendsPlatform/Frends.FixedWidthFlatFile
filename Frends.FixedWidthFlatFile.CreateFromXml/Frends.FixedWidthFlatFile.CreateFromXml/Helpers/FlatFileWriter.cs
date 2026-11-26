@@ -26,13 +26,13 @@ internal static class FlatFileWriter
                 lines.Add(BuildFixedWidthLine(HeaderNames(specs, rows), specs, 0));
                 break;
             case HeaderRowType.Delimited:
-            {
-                var header = string.Join(options.HeaderDelimiter, HeaderNames(specs, rows));
-                if (header.Contains('\r') || header.Contains('\n'))
-                    throw new InvalidDataException("Header row contains a line break.");
-                lines.Add(header);
-                break;
-            }
+                {
+                    var header = string.Join(options.HeaderDelimiter, HeaderNames(specs, rows));
+                    if (header.Contains('\r') || header.Contains('\n'))
+                        throw new InvalidDataException("Header row contains a line break.");
+                    lines.Add(header);
+                    break;
+                }
         }
 
         for (var r = 0; r < rows.Count; r++)
