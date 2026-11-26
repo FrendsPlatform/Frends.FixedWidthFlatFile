@@ -16,6 +16,6 @@ public class Error
     /// <summary>
     /// Exception that caused the error, if any.
     /// </summary>
-    /// <example>System.Exception: JSON parse failed.</example>
+    /// <example>object { Exception AdditionalInfo }</example>
     public Exception AdditionalInfo { get; set; }
 }
