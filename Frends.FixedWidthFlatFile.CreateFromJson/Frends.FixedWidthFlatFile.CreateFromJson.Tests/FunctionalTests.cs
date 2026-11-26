@@ -81,6 +81,97 @@ internal class FunctionalTests : TestBase
         Assert.That(result.Error.Message, Does.Contain("exceeding its width"));
     }
 
+    [Test]
+    public void PreservesDecimalPrecision()
+    {
+        var input = new Input
+        {
+            Json = "[{\"Amount\":0.1234567890123456789012345678}]",
+            ColumnSpecifications = [new ColumnSpecification { Name = "Amount", Type = ColumnType.Decimal, Length = 30 }],
+        };
+
+        var result = FixedWidthFlatFile.CreateFromJson(input, DefaultOptions(), CancellationToken.None);
+
+        Assert.That(result.FlatFileContent.TrimEnd(), Is.EqualTo("0.1234567890123456789012345678"));
+    }
+
+    [Test]
+    public void ParsesInputWithInvariantCulture()
+    {
+        var input = new Input
+        {
+            Json = "[{\"Amount\":\"1.5\"}]",
+            Culture = "fi-FI",
+            ColumnSpecifications = [new ColumnSpecification { Name = "Amount", Type = ColumnType.Decimal, Length = 4 }],
+        };
+
+        var result = FixedWidthFlatFile.CreateFromJson(input, DefaultOptions(), CancellationToken.None);
+
+        Assert.That(result.FlatFileContent, Is.EqualTo("1,5 "));
+    }
+
+    [TestCase("1.5", ColumnType.Int)]
+    [TestCase("1.5", ColumnType.Long)]
+    [TestCase("true", ColumnType.Int)]
+    [TestCase("\"abc\"", ColumnType.Int)]
+    [TestCase("\"abc\"", ColumnType.Decimal)]
+    public void RejectsInvalidNumbersWithColumnName(string value, ColumnType type)
+    {
+        var input = new Input
+        {
+            Json = $"[{{\"Count\":{value}}}]",
+            ColumnSpecifications = [new ColumnSpecification { Name = "Count", Type = type, Length = 8 }],
+        };
+        var options = new Options { ThrowErrorOnFailure = false };
+
+        var result = FixedWidthFlatFile.CreateFromJson(input, options, CancellationToken.None);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error.Message, Does.Contain("Count"));
+    }
+
+    [Test]
+    public void RejectsLineBreaksInsideFields()
+    {
+        var input = new Input
+        {
+            Json = "[{\"Name\":\"A\\r\\nB\"}]",
+            ColumnSpecifications = [new ColumnSpecification { Name = "Name", Length = 4 }],
+        };
+        var options = new Options { ThrowErrorOnFailure = false };
+
+        var result = FixedWidthFlatFile.CreateFromJson(input, options, CancellationToken.None);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error.Message, Does.Contain("line break"));
+    }
+
+    [Test]
+    public void RejectsDuplicateColumnNames()
+    {
+        var input = DefaultInput();
+        input.ColumnSpecifications[1].Name = input.ColumnSpecifications[0].Name;
+        var options = new Options { ThrowErrorOnFailure = false };
+
+        var result = FixedWidthFlatFile.CreateFromJson(input, options, CancellationToken.None);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error.Message, Does.Contain("duplicate"));
+    }
+
+    [Test]
+    public void RequiresDateFormatForDateTimeColumns()
+    {
+        var input = DefaultInput();
+        input.ColumnSpecifications[1].DateTimeFormat = string.Empty;
+        var options = new Options { ThrowErrorOnFailure = false };
+
+        var result = FixedWidthFlatFile.CreateFromJson(input, options, CancellationToken.None);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error.Message, Does.Contain("DateTimeFormat is required."));
+    }
+
     [TestCase("{}")]
     [TestCase("[]")]
     [TestCase("[1]")]

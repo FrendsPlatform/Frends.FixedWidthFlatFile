@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using Frends.FixedWidthFlatFile.CreateFromJson.Attributes;
 
 namespace Frends.FixedWidthFlatFile.CreateFromJson.Definitions;
 
@@ -24,10 +25,11 @@ public class ColumnSpecification
     public ColumnType Type { get; set; }
 
     /// <summary>
-    /// Output format used for date values. Date strings in JSON are parsed using the selected culture.
+    /// Output format used for date values (required for DateTime columns). Date strings in JSON are parsed using invariant culture; the output is formatted using the selected culture.
     /// </summary>
     /// <example>yyyyMMdd</example>
     [UIHint(nameof(Type), "", ColumnType.DateTime)]
+    [RequiredIf(nameof(Type), ColumnType.DateTime)]
     [DisplayFormat(DataFormatString = "Text")]
     [DefaultValue("yyyy-MM-ddTHH:mm:ss")]
     public string DateTimeFormat { get; set; } = "yyyy-MM-ddTHH:mm:ss";

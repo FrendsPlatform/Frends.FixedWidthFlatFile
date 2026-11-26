@@ -41,6 +41,7 @@ public class Input
     /// <example>[{"Name":"Name","Type":"String","Length":8},{"Name":"StartDate","Type":"DateTime","DateTimeFormat":"yyyyMMdd","Length":8}]</example>
     [MinLength(1)]
     [Required]
+    [UniqueBy(nameof(ColumnSpecification.Name))]
     public ColumnSpecification[] ColumnSpecifications { get; set; } = [];
 
     /// <summary>
@@ -51,7 +52,7 @@ public class Input
     public bool IncludeHeaderRow { get; set; }
 
     /// <summary>
-    /// Culture used to format numeric and date values. An empty value uses invariant culture.
+    /// Culture used to format numeric and date output. JSON input values are always parsed using invariant culture. An empty value uses invariant culture.
     /// </summary>
     /// <example>fi-FI</example>
     [DisplayFormat(DataFormatString = "Text")]
