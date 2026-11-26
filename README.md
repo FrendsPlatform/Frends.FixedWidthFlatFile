@@ -6,6 +6,7 @@ Frends tasks for flat file handling.
 
 - [Frends.FixedWidthFlatFile.Parse](Frends.FixedWidthFlatFile.Parse/README.md)
 - [Frends.FixedWidthFlatFile.ConvertToJSON](Frends.FixedWidthFlatFile.ConvertToJSON/README.md)
+- [Frends.FixedWidthFlatFile.CreateFromJson](Frends.FixedWidthFlatFile.CreateFromJson/README.md)
 - [Frends.FixedWidthFlatFile.ConvertToXML](Frends.FixedWidthFlatFile.ConvertToXML/README.md)
 
 # Contributing
