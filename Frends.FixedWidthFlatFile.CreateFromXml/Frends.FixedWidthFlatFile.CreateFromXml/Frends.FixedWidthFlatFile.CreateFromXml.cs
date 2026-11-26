@@ -24,6 +24,7 @@ public static class FixedWidthFlatFile
     {
         try
         {
+            cancellationToken.ThrowIfCancellationRequested();
             ValidationHandler.Run(input, options);
 
             var destinationPath = options.DestinationType == DataLocation.File
