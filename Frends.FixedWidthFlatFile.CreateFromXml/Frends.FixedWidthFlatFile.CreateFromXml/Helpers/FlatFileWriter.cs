@@ -8,6 +8,8 @@ namespace Frends.FixedWidthFlatFile.CreateFromXml.Helpers;
 
 internal static class FlatFileWriter
 {
+    private const string DefaultDateTimeFormat = "yyyy-MM-dd HH:mm:ss";
+
     internal static string Write(XDocument document, Options options, CancellationToken cancellationToken)
     {
         var rows = document.Root?.Element("Rows")?.Elements("Row").ToList()
@@ -26,8 +28,13 @@ internal static class FlatFileWriter
                 lines.Add(BuildFixedWidthLine(HeaderNames(specs, rows), specs, 0));
                 break;
             case HeaderRowType.Delimited:
-                lines.Add(string.Join(options.HeaderDelimiter, HeaderNames(specs, rows)));
+            {
+                var header = string.Join(options.HeaderDelimiter, HeaderNames(specs, rows));
+                if (header.Contains('\r') || header.Contains('\n'))
+                    throw new InvalidDataException("Header row contains a line break.");
+                lines.Add(header);
                 break;
+            }
         }
 
         for (var r = 0; r < rows.Count; r++)
@@ -47,11 +54,19 @@ internal static class FlatFileWriter
 
     internal static XDocument ReadXml(TextReader reader)
     {
-        // DTD processing is prohibited to protect against XXE and entity expansion attacks.
-        var settings = new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null };
-        using var xmlReader = XmlReader.Create(reader, settings);
+        using var xmlReader = XmlReader.Create(reader, SafeSettings());
         return XDocument.Load(xmlReader);
     }
+
+    internal static XDocument ReadXml(Stream stream)
+    {
+        using var xmlReader = XmlReader.Create(stream, SafeSettings());
+        return XDocument.Load(xmlReader);
+    }
+
+    // DTD processing is prohibited to protect against XXE and entity expansion attacks.
+    private static XmlReaderSettings SafeSettings() =>
+        new() { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null };
 
     private static string[] HeaderNames(ColumnSpecification[] specs, List<XElement> rows)
     {
@@ -98,7 +113,9 @@ internal static class FlatFileWriter
 
     private static string FormatValue(string text, ColumnSpecification spec, CultureInfo culture, int index)
     {
-        if (string.IsNullOrWhiteSpace(text))
+        // Whitespace is meaningful content for textual columns.
+        var textual = spec.Type is ColumnType.String or ColumnType.Char;
+        if (string.IsNullOrEmpty(text) || (!textual && string.IsNullOrWhiteSpace(text)))
             return string.Empty;
 
         var inv = CultureInfo.InvariantCulture;
@@ -126,8 +143,7 @@ internal static class FlatFileWriter
     private static string FormatDateTime(string text, ColumnSpecification spec, CultureInfo culture)
     {
         var date = DateTime.Parse(text, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
-        return string.IsNullOrEmpty(spec.DateTimeFormat)
-            ? date.ToString(culture)
-            : date.ToString(spec.DateTimeFormat, culture);
+        var format = string.IsNullOrWhiteSpace(spec.DateTimeFormat) ? DefaultDateTimeFormat : spec.DateTimeFormat;
+        return date.ToString(format, culture);
     }
 }

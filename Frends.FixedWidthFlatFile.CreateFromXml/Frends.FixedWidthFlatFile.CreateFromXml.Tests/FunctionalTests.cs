@@ -117,6 +117,61 @@ internal class FunctionalTests
     }
 
     [Test]
+    public void NonBreakingSpaceInStringAndCharColumnsIsPreserved()
+    {
+        var options = new Options
+        {
+            HeaderRow = HeaderRowType.None,
+            ColumnSpecifications =
+            [
+                new ColumnSpecification { Name = "A", Type = ColumnType.String, Length = 1 },
+                new ColumnSpecification { Name = "B", Type = ColumnType.Char, Length = 1 },
+            ],
+        };
+
+        var xml = "<Root><Rows><Row><A>&#xA0;</A><B>&#xA0;</B></Row></Rows></Root>";
+        var result = Run(new Input { XmlContent = xml }, options);
+
+        Assert.That(result.Data, Is.EqualTo("\u00A0\u00A0"));
+    }
+
+    [Test]
+    public void EmptyDateTimeFormatUsesDefaultFormat()
+    {
+        var options = new Options
+        {
+            HeaderRow = HeaderRowType.None,
+            ColumnSpecifications =
+            [
+                new ColumnSpecification { Name = "D", Type = ColumnType.DateTime, DateTimeFormat = string.Empty, Length = 19 },
+            ],
+        };
+
+        var xml = "<Root><Rows><Row><D>2018-05-27T13:14:15</D></Row></Rows></Root>";
+        var result = Run(new Input { XmlContent = xml }, options);
+
+        Assert.That(result.Data, Is.EqualTo("2018-05-27 13:14:15"));
+    }
+
+    [Test]
+    public void DelimitedHeaderWithLineBreakFails()
+    {
+        var options = new Options
+        {
+            HeaderRow = HeaderRowType.Delimited,
+            HeaderDelimiter = "\n",
+            ColumnSpecifications =
+            [
+                new ColumnSpecification { Name = "A", Type = ColumnType.String, Length = 1 },
+                new ColumnSpecification { Name = "B", Type = ColumnType.String, Length = 1 },
+            ],
+        };
+
+        var xml = "<Root><Rows><Row><A>1</A><B>2</B></Row></Rows></Root>";
+        Assert.Throws<InvalidDataException>(() => Run(new Input { XmlContent = xml }, options));
+    }
+
+    [Test]
     public void RoundTripThroughFilesReturnsOriginalFile()
     {
         var original = FlatFile.Replace("\r\n", Environment.NewLine);

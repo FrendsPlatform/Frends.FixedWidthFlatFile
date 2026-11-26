@@ -4,11 +4,11 @@ namespace Frends.FixedWidthFlatFile.CreateFromXml.Helpers;
 
 internal static class FileHandler
 {
-    internal static StreamReader OpenSourceFile(string path)
+    internal static FileStream OpenSourceFile(string path)
     {
         return !File.Exists(path)
             ? throw new FileNotFoundException($"XML source '{path}' was not found.", path)
-            : new StreamReader(path);
+            : new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
     }
 
     internal static string ResolveDestinationPath(string path)

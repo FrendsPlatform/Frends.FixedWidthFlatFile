@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Xml.Linq;
 using Frends.FixedWidthFlatFile.CreateFromXml.Definitions;
 using Frends.FixedWidthFlatFile.CreateFromXml.Helpers;
 
@@ -31,11 +32,19 @@ public static class FixedWidthFlatFile
                 ? FileHandler.ResolveDestinationPath(options.DestinationFilePath)
                 : null;
 
-            using TextReader reader = input.SourceType == DataLocation.File
-                ? FileHandler.OpenSourceFile(input.XmlFilePath)
-                : new StringReader(input.XmlContent);
+            XDocument document;
+            if (input.SourceType == DataLocation.File)
+            {
+                // Reading from a stream lets the XML parser detect the encoding from the BOM or XML declaration.
+                using var stream = FileHandler.OpenSourceFile(input.XmlFilePath);
+                document = FlatFileWriter.ReadXml(stream);
+            }
+            else
+            {
+                using var reader = new StringReader(input.XmlContent);
+                document = FlatFileWriter.ReadXml(reader);
+            }
 
-            var document = FlatFileWriter.ReadXml(reader);
             cancellationToken.ThrowIfCancellationRequested();
 
             var flatFile = FlatFileWriter.Write(document, options, cancellationToken);
