@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using Frends.FixedWidthFlatFile.CreateFromObject.Attributes;
 
 namespace Frends.FixedWidthFlatFile.CreateFromObject.Definitions;
 
@@ -27,6 +28,7 @@ public class ColumnSpecification
     /// </summary>
     /// <example>yyyyMMdd</example>
     [UIHint(nameof(Type), "", ColumnType.DateTime)]
+    [RequiredIf(nameof(Type), ColumnType.DateTime)]
     [DisplayFormat(DataFormatString = "Text")]
     [DefaultValue("yyyy-MM-ddTHH:mm:ss")]
     public string DateTimeFormat { get; set; } = "yyyy-MM-ddTHH:mm:ss";

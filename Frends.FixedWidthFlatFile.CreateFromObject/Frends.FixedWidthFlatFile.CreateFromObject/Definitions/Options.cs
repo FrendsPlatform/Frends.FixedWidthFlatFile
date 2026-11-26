@@ -22,7 +22,7 @@ public class Options
     /// </summary>
     /// <example>HeaderRowType.FixedWidth</example>
     [DefaultValue(HeaderRowType.FixedWidth)]
-    public HeaderRowType HeaderRow { get; set; }
+    public HeaderRowType HeaderRow { get; set; } = HeaderRowType.FixedWidth;
 
     /// <summary>
     /// Delimiter used between column names when HeaderRow is Delimited.
