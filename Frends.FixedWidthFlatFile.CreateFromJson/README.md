@@ -2,17 +2,6 @@
 
 Converts JSON data to a fixed-width flat file.
 
-The input must be a non-empty JSON array of objects. The output is a fixed-width flat file.
-Example JSON:
-
-```json
-[
-  { "Name": "Veijo", "StartDate": "2018-05-27T00:00:00" }
-]
-```
-
-With `Name` configured as a string of width 8 and `StartDate` configured as a date using `yyyyMMdd` and width 8, the output record is `Veijo   20180527`.
-
 [![Build status](https://github.com/FrendsPlatform/Frends.FixedWidthFlatFile/actions/workflows/CreateFromJson_main_release.yml/badge.svg)](https://github.com/FrendsPlatform/Frends.FixedWidthFlatFile/actions/workflows/CreateFromJson_main_release.yml)
 ![Code Coverage](https://app-github-custom-badges.azurewebsites.net/Badge?key=FrendsPlatform/Frends.FixedWidthFlatFile/Frends.FixedWidthFlatFile.CreateFromJson|main)
 [![Repository License](https://img.shields.io/github/license/FrendsPlatform/Frends.FixedWidthFlatFile?label=License)](https://github.com/FrendsPlatform/Frends.FixedWidthFlatFile/blob/main/LICENSE)
