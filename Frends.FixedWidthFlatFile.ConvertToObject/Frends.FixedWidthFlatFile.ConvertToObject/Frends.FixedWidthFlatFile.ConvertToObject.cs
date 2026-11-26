@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Globalization;
 using Frends.FixedWidthFlatFile.ConvertToObject.Definitions;
 using Frends.FixedWidthFlatFile.ConvertToObject.Helpers;
 
@@ -30,7 +31,10 @@ public static class FixedWidthFlatFile
                 ? FileHandler.ReadSource(input.FlatFilePath)
                 : input.FlatFileContent;
 
-            var outputData = FlatFileParser.Parse(content, options, cancellationToken);
+            var culture = string.IsNullOrEmpty(input.Culture)
+                ? CultureInfo.InvariantCulture
+                : CultureInfo.GetCultureInfo(input.Culture);
+            var outputData = FlatFileParser.Parse(content, options, culture, cancellationToken);
 
             return new Result
             {

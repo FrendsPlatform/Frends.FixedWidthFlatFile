@@ -11,6 +11,7 @@ internal static class FlatFileParser
     internal static List<Dictionary<string, dynamic>> Parse(
         string content,
         Options options,
+        CultureInfo culture,
         CancellationToken cancellationToken)
     {
         var headers = new List<string>();
@@ -31,6 +32,9 @@ internal static class FlatFileParser
             case HeaderRowType.Delimited:
                 var headerDelimiter = Convert.ToChar(options.HeaderDelimiter);
                 headers = SplitToList(inputRows.First(), headerDelimiter);
+                if (headers.Count > columnNames.Length)
+                    throw new InvalidDataException($"Delimited header contains {headers.Count} columns, but only {columnNames.Length} column specifications were provided.");
+
                 inputRows.RemoveAt(0);
                 break;
             case HeaderRowType.FixedWidth:
@@ -70,10 +74,10 @@ internal static class FlatFileParser
             }
         }
 
-        foreach (var dataRow in inputRows)
+        for (var rowIndex = 0; rowIndex < inputRows.Count; rowIndex++)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            outputData.Add(ParseDataRowWithColumnNames(dataRow, options.ColumnSpecifications, columnNames));
+            outputData.Add(ParseDataRowWithColumnNames(inputRows[rowIndex], options.ColumnSpecifications, columnNames, rowIndex + 1, culture));
         }
 
         return outputData;
@@ -127,7 +131,9 @@ internal static class FlatFileParser
     internal static Dictionary<string, dynamic> ParseDataRowWithColumnNames(
         string row,
         ColumnSpecification[] columnSpecifications,
-        IReadOnlyList<string> columnNames)
+        IReadOnlyList<string> columnNames,
+        int rowNumber,
+        CultureInfo culture)
     {
         var parsedData = new Dictionary<string, dynamic>();
 
@@ -141,51 +147,56 @@ internal static class FlatFileParser
             if (string.IsNullOrEmpty(columnName))
                 columnName = $"Field_{i + 1}";
 
-            if (string.IsNullOrWhiteSpace(columnValue))
+            try
             {
-                parsedData.AddKeyValuePair(columnName, null);
-            }
-            else
-            {
-                switch (columnSpec.Type)
+                if (string.IsNullOrWhiteSpace(columnValue))
                 {
-                    case ColumnType.Boolean:
-                        parsedData.AddKeyValuePair(columnName, bool.Parse(columnValue));
-                        break;
-                    case ColumnType.Char:
-                        parsedData.AddKeyValuePair(columnName, char.Parse(columnValue));
-                        break;
-                    case ColumnType.DateTime:
-                        parsedData.AddKeyValuePair(columnName, string.IsNullOrEmpty(columnSpec.DateTimeFormat) ? DateTime.Parse(columnValue) : DateTime.ParseExact(columnValue, columnSpec.DateTimeFormat, CultureInfo.InvariantCulture));
-                        break;
-                    case ColumnType.Decimal:
-                        var cultureDecimal = columnValue.Contains(',') ? CultureInfo.GetCultureInfo("fi-FI") : CultureInfo.InvariantCulture;
-                        parsedData.AddKeyValuePair(columnName, decimal.Parse(columnValue, cultureDecimal));
-                        break;
-                    case ColumnType.Double:
-                        var cultureDouble = columnValue.Contains(',') ? CultureInfo.GetCultureInfo("fi-FI") : CultureInfo.InvariantCulture;
-                        parsedData.AddKeyValuePair(columnName, double.Parse(columnValue, cultureDouble));
-                        break;
-                    case ColumnType.Int:
-                        parsedData.AddKeyValuePair(columnName, int.Parse(columnValue));
-                        break;
-                    case ColumnType.Long:
-                        parsedData.AddKeyValuePair(columnName, long.Parse(columnValue));
-                        break;
-                    default:
-                        parsedData.AddKeyValuePair(columnName, columnValue);
-                        break;
+                    parsedData.AddKeyValuePair(columnName, null);
                 }
+                else
+                {
+                    switch (columnSpec.Type)
+                    {
+                        case ColumnType.Boolean:
+                            parsedData.AddKeyValuePair(columnName, bool.Parse(columnValue));
+                            break;
+                        case ColumnType.Char:
+                            parsedData.AddKeyValuePair(columnName, char.Parse(columnValue));
+                            break;
+                        case ColumnType.DateTime:
+                            parsedData.AddKeyValuePair(columnName, string.IsNullOrEmpty(columnSpec.DateTimeFormat) ? DateTime.Parse(columnValue, culture) : DateTime.ParseExact(columnValue, columnSpec.DateTimeFormat, culture));
+                            break;
+                        case ColumnType.Decimal:
+                            parsedData.AddKeyValuePair(columnName, decimal.Parse(columnValue, culture));
+                            break;
+                        case ColumnType.Double:
+                            parsedData.AddKeyValuePair(columnName, double.Parse(columnValue, culture));
+                            break;
+                        case ColumnType.Int:
+                            parsedData.AddKeyValuePair(columnName, int.Parse(columnValue, culture));
+                            break;
+                        case ColumnType.Long:
+                            parsedData.AddKeyValuePair(columnName, long.Parse(columnValue, culture));
+                            break;
+                        default:
+                            parsedData.AddKeyValuePair(columnName, columnValue);
+                            break;
+                    }
+                }
+            }
+            catch (Exception ex) when (ex is FormatException or OverflowException)
+            {
+                throw new InvalidDataException($"Failed to parse data row {rowNumber}, column '{columnName}'.", ex);
             }
         }
 
         return parsedData;
     }
 
-    internal static Dictionary<string, dynamic> ParseDataRow(string row, ColumnSpecification[] columnSpecifications)
+    internal static Dictionary<string, dynamic> ParseDataRow(string row, ColumnSpecification[] columnSpecifications, CultureInfo culture = null)
     {
         var columnNames = columnSpecifications.Select(column => column.Name).ToArray();
-        return ParseDataRowWithColumnNames(row, columnSpecifications, columnNames);
+        return ParseDataRowWithColumnNames(row, columnSpecifications, columnNames, 1, culture ?? CultureInfo.InvariantCulture);
     }
 
     internal static void AddKeyValuePair(this Dictionary<string, dynamic> dictionary, string key, dynamic value)

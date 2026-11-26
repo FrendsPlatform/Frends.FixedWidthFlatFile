@@ -38,4 +38,12 @@ public class Input
     [RequiredIf(nameof(SourceType), DataLocation.File)]
     [DisplayFormat(DataFormatString = "Text")]
     public string FlatFilePath { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Culture used to parse numeric and date values. When empty, invariant culture is used.
+    /// </summary>
+    /// <example>fi-FI</example>
+    [DisplayFormat(DataFormatString = "Text")]
+    [DefaultValue("")]
+    public string Culture { get; set; } = string.Empty;
 }

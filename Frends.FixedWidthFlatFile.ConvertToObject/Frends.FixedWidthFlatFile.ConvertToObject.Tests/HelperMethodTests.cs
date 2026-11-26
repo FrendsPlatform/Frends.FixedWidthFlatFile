@@ -1,3 +1,4 @@
+using System.Globalization;
 using Frends.FixedWidthFlatFile.ConvertToObject.Definitions;
 using Frends.FixedWidthFlatFile.ConvertToObject.Helpers;
 using NUnit.Framework;
@@ -65,7 +66,7 @@ internal class HelperMethodTests
             new ColumnSpecification { Type = ColumnType.Int, Length = 1, Name = "Int" },
         };
 
-        var result = FlatFileParser.ParseDataRow("truet1,51234567890201804249", columns);
+        var result = FlatFileParser.ParseDataRow("truet1,51234567890201804249", columns, CultureInfo.GetCultureInfo("fi-FI"));
 
         Assert.That(result, Has.Count.EqualTo(6));
         Assert.That(result["Boolean"], Is.TypeOf<bool>());
@@ -85,10 +86,39 @@ internal class HelperMethodTests
             new ColumnSpecification { Type = ColumnType.Decimal, Length = 3, Name = "Comma" },
         };
 
-        var result = FlatFileParser.ParseDataRow("1.52,5", columns);
+        var dotResult = FlatFileParser.ParseDataRow("1.52.5", columns);
+        var commaResult = FlatFileParser.ParseDataRow("1,52,5", columns, CultureInfo.GetCultureInfo("fi-FI"));
 
-        Assert.That(result["Dot"], Is.EqualTo(1.5m));
-        Assert.That(result["Comma"], Is.EqualTo(2.5m));
+        Assert.That(dotResult["Dot"], Is.EqualTo(1.5m));
+        Assert.That(commaResult["Comma"], Is.EqualTo(2.5m));
+    }
+
+    [Test]
+    public void ParseDataRow_UsesCultureForDecimalAndDouble()
+    {
+        var columns = new[]
+        {
+            new ColumnSpecification { Type = ColumnType.Decimal, Length = 8, Name = "Decimal" },
+            new ColumnSpecification { Type = ColumnType.Double, Length = 8, Name = "Double" },
+        };
+
+        var dot = FlatFileParser.ParseDataRow("1,234.561,234.56", columns);
+        var comma = FlatFileParser.ParseDataRow("1.234,561.234,56", columns, CultureInfo.GetCultureInfo("de-DE"));
+
+        Assert.That(dot["Decimal"], Is.EqualTo(1234.56m));
+        Assert.That(dot["Double"], Is.EqualTo(1234.56d));
+        Assert.That(comma["Decimal"], Is.EqualTo(1234.56m));
+        Assert.That(comma["Double"], Is.EqualTo(1234.56d));
+    }
+
+    [Test]
+    public void ParseDataRow_InvariantCultureTreatsCommaAsThousandsSeparator()
+    {
+        var columns = new[] { new ColumnSpecification { Type = ColumnType.Decimal, Length = 5, Name = "Amount" } };
+
+        var result = FlatFileParser.ParseDataRow("1,234", columns);
+
+        Assert.That(result["Amount"], Is.EqualTo(1234m));
     }
 
     [Test]

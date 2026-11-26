@@ -139,6 +139,109 @@ Hodor   HodorsStr 20180101 ";
     }
 
     [Test]
+    public void ConvertToObject_DelimitedHeaderWithMoreColumnsThanSpecifications_FailsClearly()
+    {
+        var input = new Input { FlatFileContent = "First;Second;Third\n1234" };
+        var options = new Options
+        {
+            HeaderRow = HeaderRowType.Delimited,
+            HeaderDelimiter = ";",
+            ColumnSpecifications = [new ColumnSpecification { Length = 4 }],
+            ThrowErrorOnFailure = false,
+        };
+
+        var result = FixedWidthFlatFile.ConvertToObject(input, options, CancellationToken.None);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error.AdditionalInfo, Is.TypeOf<InvalidDataException>());
+        Assert.That(result.Error.Message, Does.Contain("3 columns").And.Contain("1 column specifications"));
+    }
+
+    [Test]
+    public void ConvertToObject_InvalidCulture_FailsClearly()
+    {
+        var input = new Input { FlatFileContent = "12", Culture = "!" };
+        var options = new Options
+        {
+            HeaderRow = HeaderRowType.None,
+            ColumnSpecifications = [new ColumnSpecification { Length = 2, Type = ColumnType.Decimal }],
+            ThrowErrorOnFailure = false,
+        };
+
+        var result = FixedWidthFlatFile.ConvertToObject(input, options, CancellationToken.None);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error.AdditionalInfo, Is.TypeOf<System.Globalization.CultureNotFoundException>());
+    }
+
+    [Test]
+    public void ConvertToObject_ParsingFailureIncludesDataRowAndColumn()
+    {
+        var input = new Input { FlatFileContent = "123\nabc" };
+        var options = new Options
+        {
+            HeaderRow = HeaderRowType.None,
+            ColumnSpecifications = [new ColumnSpecification { Length = 3, Type = ColumnType.Int, Name = "Count" }],
+            ThrowErrorOnFailure = false,
+        };
+
+        var result = FixedWidthFlatFile.ConvertToObject(input, options, CancellationToken.None);
+
+        Assert.That(result.Success, Is.False);
+        Assert.That(result.Error.Message, Does.Contain("row 2").And.Contain("Count"));
+        Assert.That(result.Error.AdditionalInfo, Is.TypeOf<InvalidDataException>());
+        Assert.That(result.Error.AdditionalInfo.InnerException, Is.TypeOf<FormatException>());
+    }
+
+    [Test]
+    public void ConvertToObject_ProvidedCulture_ParsesAmount()
+    {
+        var input = new Input { FlatFileContent = "1,234", Culture = "fi-FI" };
+        var options = new Options
+        {
+            HeaderRow = HeaderRowType.None,
+            ColumnSpecifications = [new ColumnSpecification { Length = 5, Type = ColumnType.Decimal, Name = "Amount" }],
+        };
+
+        var result = FixedWidthFlatFile.ConvertToObject(input, options, CancellationToken.None);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Data[0]["Amount"], Is.EqualTo(1.234m));
+    }
+
+    [Test]
+    public void ConvertToObject_NoCulture_UsesInvariantCulture()
+    {
+        var input = new Input { FlatFileContent = "1,234.56" };
+        var options = new Options
+        {
+            HeaderRow = HeaderRowType.None,
+            ColumnSpecifications = [new ColumnSpecification { Length = 8, Type = ColumnType.Decimal, Name = "Amount" }],
+        };
+
+        var result = FixedWidthFlatFile.ConvertToObject(input, options, CancellationToken.None);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Data[0]["Amount"], Is.EqualTo(1234.56m));
+    }
+
+    [Test]
+    public void ConvertToObject_ProvidedCulture_ParsesDate()
+    {
+        var input = new Input { FlatFileContent = "31.M\u00E4rz.2025", Culture = "de-DE" };
+        var options = new Options
+        {
+            HeaderRow = HeaderRowType.None,
+            ColumnSpecifications = [new ColumnSpecification { Length = 12, Type = ColumnType.DateTime, DateTimeFormat = "dd.MMMM.yyyy", Name = "Date" }],
+        };
+
+        var result = FixedWidthFlatFile.ConvertToObject(input, options, CancellationToken.None);
+
+        Assert.That(result.Success, Is.True);
+        Assert.That(result.Data[0]["Date"], Is.EqualTo(new DateTime(2025, 3, 31)));
+    }
+
+    [Test]
     public void ConvertToObject_WithoutHeader_Test()
     {
         const string content = @"Veijo   FrendsStr 20180527 
