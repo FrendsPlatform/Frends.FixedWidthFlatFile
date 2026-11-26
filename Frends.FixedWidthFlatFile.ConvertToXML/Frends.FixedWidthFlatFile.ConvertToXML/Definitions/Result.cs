@@ -1,4 +1,4 @@
-﻿namespace Frends.FixedWidthFlatFile.ConvertToXML.Definitions;
+namespace Frends.FixedWidthFlatFile.ConvertToXML.Definitions;
 
 /// <summary>
 /// Result class.
