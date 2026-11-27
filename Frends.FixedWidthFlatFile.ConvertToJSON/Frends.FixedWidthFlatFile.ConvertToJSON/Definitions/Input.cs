@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using Frends.FixedWidthFlatFile.ConvertToJSON.Attributes;
 
 namespace Frends.FixedWidthFlatFile.ConvertToJSON.Definitions;
-
-#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
 
 /// <summary>
 /// Input parameters for the Task.
@@ -11,31 +10,33 @@ namespace Frends.FixedWidthFlatFile.ConvertToJSON.Definitions;
 public class Input
 {
     /// <summary>
-    /// Fixed width flat file content
+    /// Whether the flat file is provided as a string or read from a file.
     /// </summary>
-    /// <example>
-    /// [
-    ///     {
-    ///         "Name": "Veijo",
-    ///         "Street": "FrendsStr",
-    ///         "StartDate": "2018-05-27T00:00:00"
-    ///     },
-    ///     {
-    ///         "Name": "Hodor",
-    ///         "Street": "HodorsStr",
-    ///         "StartDate": "2018-01-01T00:00:00"
-    ///     }
-    /// ]
-    /// </example>
-    public List<Dictionary<string, dynamic?>> FileContent { get; set; } = new List<Dictionary<string, dynamic?>>();
+    /// <example>String</example>
+    [DefaultValue(DataLocation.String)]
+    public DataLocation SourceType { get; set; } = DataLocation.String;
 
     /// <summary>
-    /// Culture format json will be build with
+    /// Fixed width flat file content in string format. The header row uses the same column widths as data rows.
+    /// The example uses column widths 6, 10 and 8 and the date format yyyyMMdd.
     /// </summary>
-    /// <example>fi-FI</example>
+    /// <example>
+    /// <code>
+    /// Name  Street    Birthday
+    /// Veijo FrendsStr 20180527
+    /// Hodor HodorsStr 20180101
+    /// </code> </example>
+    [UIHint(nameof(SourceType), "", DataLocation.String)]
+    [RequiredIf(nameof(SourceType), DataLocation.String)]
     [DisplayFormat(DataFormatString = "Text")]
-    public string Culture { get; set; } = string.Empty;
+    public string FlatFileContent { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Path to a file containing the fixed width flat file content.
+    /// </summary>
+    /// <example>C:\input\data.txt</example>
+    [UIHint(nameof(SourceType), "", DataLocation.File)]
+    [RequiredIf(nameof(SourceType), DataLocation.File)]
+    [DisplayFormat(DataFormatString = "Text")]
+    public string FlatFilePath { get; set; } = string.Empty;
 }
-
-#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
-
