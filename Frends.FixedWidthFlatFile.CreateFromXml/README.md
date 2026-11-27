@@ -1,6 +1,6 @@
 # Frends.FixedWidthFlatFile.CreateFromXml
 
-Frends task to create a fixed-width flat file from XML
+Frends task to create a fixed-width flat file from XML.
 
 [![Build status](https://github.com/FrendsPlatform/Frends.FixedWidthFlatFile/actions/workflows/CreateFromXml_main_release.yml/badge.svg)](https://github.com/FrendsPlatform/Frends.FixedWidthFlatFile/actions/workflows/CreateFromXml_main_release.yml)
 ![Code Coverage](https://app-github-custom-badges.azurewebsites.net/Badge?key=FrendsPlatform/Frends.FixedWidthFlatFile/Frends.FixedWidthFlatFile.CreateFromXml|main)
